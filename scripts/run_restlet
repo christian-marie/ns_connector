@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+$: << File.join(
+	File.dirname(__FILE__),
+	'..', 'lib'
+)
+
+require 'ns_connector'
+require 'pp'
+
+unless ARGV.size == 2 then
+	warn(
+		"Usage: #{$0}"\
+		"<configuration as ruby code> "\
+		"<arguments as ruby code>"
+	)
+	warn('e.g.')
+	warn(
+		"#{$0}"\
+		'"{:account_id => ...}" "{:action => ...}"'
+	)
+	exit 1
+end
+
+NSConnector::Config.set_config!(eval(ARGV[0]))
+pp NSConnector::Restlet.execute!(eval(ARGV[1]))

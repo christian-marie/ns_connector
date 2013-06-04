@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+$: << File.join(
+		File.dirname(__FILE__),
+			'..', 'lib'
+)
+
+require 'ns_connector'
+require 'rspec/autorun'
+
+unless ARGV.size == 1 then
+	warn "Usage: #{$0} <config as ruby code>"
+	warn "Warning! This script could destroy production data, it is only"\
+		" intended for testing"
+end
+
+# We shift the argument off here, or it gets passed to the RSpec runner
+NSConnector::Config.set_config!(eval(ARGV.shift))
+
+def customer_id
+	NSConnector::Config[:valid_customer_id]
+end
+
+# This only theoretically a read only live conformance test, run at your own
+# peril! Seriously, if you run this on production data and the internet
+# explodes, well, you're stupid, unlucky, and I warned you.
+
+describe 'retrieve' do
+	it 'returns a Hash with an id' do
+		record = NSConnector::Restlet.execute!({
+			:action => 'retrieve',
+			:type_id => 'contact',
+			:fields => ['id', 'firstname', 'lastname'],
+			:data => {
+				:id => customer_id,
+			}
+		})
+
+		expect(record).to be_a(Hash)
+		expect(record['id']).to be_a(String)
+		expect(record.keys).to include('firstname')
+		expect(record.keys).to include('lastname')
+	end
+end
+
+describe 'search' do
+	it 'returns a basic search by id' do
+		record = NSConnector::Restlet.execute!(
+			:action => 'search',
+			:type_id => 'contact',
+			:fields => ['id'],
+			:data => {
+				:filters => [
+					['internalid', nil, 'is', customer_id]
+				]
+			}
+		)
+
+		expect(record).to be_a(Array)
+		expect(record).to_not be_empty
+		expect(record.first['id']).to be_a(String)
+		expect(record.first['id']).to_not be_empty
+	end
+end
