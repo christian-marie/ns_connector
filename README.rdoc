@@ -1,0 +1,98 @@
+= NSConnector intro 
+This library provides an interface to NetSuite via 'RESTlets'. This appears to
+be a quicker and more reliable way of interfacing with NetSuite records than the
+SOAP API. 
+
+== Supported NetSuite types
+* NSConnector::Contact
+* NSConnector::Customer
+
+== Installation
+Install the restlet:
+	javascript stuff goes here
+
+== Connecting
+There is a little bit of overhead due to the way we load avaliable fields from
+NetSuite dynamically. These are saved within a class variable, so should only
+be fetched once between calls.
+
+However, should you wish to avoid this overhead you can request that any types
+you wish to use are pre-loaded like so:
+
+	include NSConnector
+
+	Contact.load_field_ids
+	=> [fields...]
+
+== CRUD
+Every supported type supports full CRUD via the same standard interface
+Check the SuiteScript Records Browser [1] for avaliable fields.
+
+=== Creating
+To create a record, simply instantiate a new class of that kind and call
+.save_reload!  on it.
+
+Calling .save_reload will re-load the saved Record from NetSuite with any other
+changes that NetSuite's internal logic may have made.
+
+Should you not care about these changes, simply call .save!, noting that the
+local record may not represent the actual record in NetSuite.
+
+==== Example:
+	include NSConnector
+
+	c = Contact.new
+	=> <#NSConnector::Contact:nil>
+
+	c.fields
+	=> [fields...]
+	
+	c.lastname = 'abc'
+	=> 'abc'
+
+	c.save_reload!
+	=> true
+
+	c.lastname
+	=> 'Abc'
+
+=== Reading
+You can find by any field or by internalId.
+==== Example:
+	include NSConnector
+
+	# Search by any internal field ID
+	Contact.find_by('entityId', 42)
+	=> <#NSConnector::Contact:12>
+
+	# This is equivalent to finding by internalId
+	Contact.find(12)
+	=> <#NSConnector::Contact:12>
+
+You can also perform more complex searces.
+==== Example:
+	TODO: Example
+
+=== Updating
+Updating records is much like creating new ones. Simply:
+1. Grab the record (see Reading).
+	c = Contact.find(12)
+2. Update the record to your liking.
+	c.lastname = 'newname'
+3. Save the record (see Creating)
+	c.save!
+	=> true
+
+=== Deleting
+Deletion can be done by ID or Record.
+==== Example:
+1. By ID
+	Contact.delete!(42)
+	=> true
+2. By Record
+	c = Contact.find(42)
+	c.delete!
+	
+
+== References
+[1] {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]
