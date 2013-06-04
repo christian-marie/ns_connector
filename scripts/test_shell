@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+$: << File.join(
+	File.dirname(__FILE__),
+	'..', 'lib'
+)
+
+require 'ns_connector'
+require 'pry'
+
+if ARGV.empty? then
+	warn(
+		"Usage: #{$0}"\
+		"<configuration as ruby code>"
+	)
+	exit 1
+end
+
+
+
+NSConnector::Config.set_config!(eval(ARGV[0]))
+NSConnector.pry

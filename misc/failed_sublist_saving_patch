@@ -1,0 +1,547 @@
+Why is this stored here and not in git?
+
+I'm planning rebase into a single commit, prefer not to lose this as a reference.
+
+diff --git a/lib/ns_connector/resource.rb b/lib/ns_connector/resource.rb
+index 92bbeab..3e49d7b 100644
+--- a/lib/ns_connector/resource.rb
++++ b/lib/ns_connector/resource.rb
+@@ -94,17 +94,6 @@ class NSConnector::Resource
+ 		# If we got this far, we're definitely in NetSuite
+ 		@in_netsuite = true
+ 
+-		# Now we save our sublist(s)
+-		@sublist_store.each do |sublist_id, sublist_items|
+-			# Overwriting the current item
+-			@sublist_store[sublist_id] = NSConnector::SubList.save!(
+-				sublist_items, 
+-				self,
+-				sublist_id,
+-				sublists[sublist_id]
+-			)
+-		end
+-
+ 		return true
+ 	end
+ 
+@@ -228,12 +217,7 @@ class NSConnector::Resource
+ 	private
+ 	# Given a sublist of {:addressbook => ['fields']} we want a method
+ 	# addressbook that looks up the sublist if we have an ID, otherwise
+-	# returns the empty array.
+-	#
+-	# And finally we need a method to create new sublist objects that is
+-	# generic and not too crazy. So we have new_addressbook that returns a
+-	# SubList object that can be stored and later turned into a hash to
+-	# send to NetSuite.
++	# returns an empty array.
+ 	def create_sublist_accessors!
+ 		sublists.each do |sublist_name, fields|
+ 			self.class.class_eval do
+@@ -250,21 +234,6 @@ class NSConnector::Resource
+ 
+ 					@sublist_store[sublist_name] ||= []
+ 				end
+-
+-				define_method("#{sublist_name}=") do |value|
+-					@sublist_store[sublist_name] = value
+-				end
+-
+-				define_method(
+-					"new_#{sublist_name}_item"
+-				) do |upstream_store = nil|
+-					NSConnector::SubListItem.new(
+-						sublist_name, 
+-						fields, 
+-						self, 
+-						upstream_store
+-					)
+-				end
+ 			end
+ 		end
+ 	end
+diff --git a/lib/ns_connector/sublist.rb b/lib/ns_connector/sublist.rb
+index b24f0c1..94d9c2f 100644
+--- a/lib/ns_connector/sublist.rb
++++ b/lib/ns_connector/sublist.rb
+@@ -1,27 +1,5 @@
+ # Provides a method for saving a bunch of SubListItems
+ module NSConnector::SubList
+-	# We save our array of SubListItems in the order in which they appear.
+-	# Arguments:: An array of SubListItem, the parent object and the fields
+-	# Returns:: An array of SubListItem that have been saved
+-	def self.save! sublist_items, parent, sublist_id, fields
+-		data = sublist_items.uniq.map do |item|
+-			item.store
+-		end
+-
+-		NSConnector::Restlet.execute!(
+-			:action => 'save_sublist',
+-			:type_id => parent.type_id,
+-			:parent_id => parent.id,
+-			:fields => fields,
+-			:sublist_id => sublist_id,
+-			:data => data
+-		)
+-
+-		# We have to do this in a second request as NetSuite needs a
+-		# short time to think about any added records.
+-		return NSConnector::SubList.fetch(parent, sublist_id, fields)
+-	end
+-
+ 	# Grab sublist_id from NetSuite
+ 	# Returns:: An array of SubListItems
+ 	def self.fetch parent, sublist_id, fields
+diff --git a/misc/failed_sublist_saving_patch b/misc/failed_sublist_saving_patch
+index 5393f12..e69de29 100644
+--- a/misc/failed_sublist_saving_patch
++++ b/misc/failed_sublist_saving_patch
+@@ -1,214 +0,0 @@
+-diff --git a/lib/ns_connector/resource.rb b/lib/ns_connector/resource.rb
+-index 92bbeab..ef0f649 100644
+---- a/lib/ns_connector/resource.rb
+-+++ b/lib/ns_connector/resource.rb
+-@@ -94,17 +94,6 @@ class NSConnector::Resource
+- 		# If we got this far, we're definitely in NetSuite
+- 		@in_netsuite = true
+- 
+--		# Now we save our sublist(s)
+--		@sublist_store.each do |sublist_id, sublist_items|
+--			# Overwriting the current item
+--			@sublist_store[sublist_id] = NSConnector::SubList.save!(
+--				sublist_items, 
+--				self,
+--				sublist_id,
+--				sublists[sublist_id]
+--			)
+--		end
+--
+- 		return true
+- 	end
+- 
+-@@ -250,21 +239,6 @@ class NSConnector::Resource
+- 
+- 					@sublist_store[sublist_name] ||= []
+- 				end
+--
+--				define_method("#{sublist_name}=") do |value|
+--					@sublist_store[sublist_name] = value
+--				end
+--
+--				define_method(
+--					"new_#{sublist_name}_item"
+--				) do |upstream_store = nil|
+--					NSConnector::SubListItem.new(
+--						sublist_name, 
+--						fields, 
+--						self, 
+--						upstream_store
+--					)
+--				end
+- 			end
+- 		end
+- 	end
+-diff --git a/lib/ns_connector/sublist.rb b/lib/ns_connector/sublist.rb
+-index b24f0c1..94d9c2f 100644
+---- a/lib/ns_connector/sublist.rb
+-+++ b/lib/ns_connector/sublist.rb
+-@@ -1,27 +1,5 @@
+- # Provides a method for saving a bunch of SubListItems
+- module NSConnector::SubList
+--	# We save our array of SubListItems in the order in which they appear.
+--	# Arguments:: An array of SubListItem, the parent object and the fields
+--	# Returns:: An array of SubListItem that have been saved
+--	def self.save! sublist_items, parent, sublist_id, fields
+--		data = sublist_items.uniq.map do |item|
+--			item.store
+--		end
+--
+--		NSConnector::Restlet.execute!(
+--			:action => 'save_sublist',
+--			:type_id => parent.type_id,
+--			:parent_id => parent.id,
+--			:fields => fields,
+--			:sublist_id => sublist_id,
+--			:data => data
+--		)
+--
+--		# We have to do this in a second request as NetSuite needs a
+--		# short time to think about any added records.
+--		return NSConnector::SubList.fetch(parent, sublist_id, fields)
+--	end
+--
+- 	# Grab sublist_id from NetSuite
+- 	# Returns:: An array of SubListItems
+- 	def self.fetch parent, sublist_id, fields
+-diff --git a/support/restlet.js b/support/restlet.js
+-index 4569862..afc8df2 100644
+---- a/support/restlet.js
+-+++ b/support/restlet.js
+-@@ -193,133 +193,6 @@ function create(request)
+- 	));
+- }
+- 
+--// Save a sublist, trying to merge changes nicely.
+--//
+--// Returns:: True, note that you will need to fetch the updated items yourself,
+--// as netsuite seems to need a little while to think about any newly added
+--// records or it freaks out.
+--//
+--// Raises:: An invalid sublist operation error, often, as apparently you're not
+--// allowed to delete certain sublists even though you can append to them. Kind
+--// of really annoying. Not much I can do about it.
+--//
+--// Also seems to raise a 500 on modifying existing items if it doesn't want you
+--// to.
+--// 
+--// We have the minor problem here of only being able to modify existing line
+--// items in place, insert new ones and delete old ones, not rewrite the whole
+--// list. This problem is easily dealt with if we simply don't worry about
+--// order. So, new items should be appended to the end, and the existing order
+--// shouldn't be messed with, however if you wanted to say, pull the whole list
+--// out and reverse the order, you're out of luck. 
+--//
+--// It's possible to do, I think. I have other things to work on just now.
+--//
+--// So we have three basic steps:
+--//
+--// 1. Modify all existing records that have changed, identifying by id.
+--// 2. If the existing record does not appear in the new list, delete it.
+--// 3. Append new records to the end.
+--function save_sublist(request)
+--{
+--	if(!request.hasOwnProperty('parent_id')) {
+--		argument_error("Missing mandatory argument: parent_id");
+--	}
+--
+--	if(!request.hasOwnProperty('sublist_id')) {
+--		argument_error("Missing mandatory argument: sublist_id");
+--	}
+--
+--	var record = nlapiLoadRecord(request.type_id, request.parent_id);
+--	var sublist_len = record.getLineItemCount(request.sublist_id);
+--	var downstream_items = request.data;
+--	var we_touched_something = false;
+--
+--	// 1. Modify all existing records that have been changed.
+--	for(var i = 1; i <= sublist_len; i++) {
+--		var upstream_id = record.getLineItemValue(
+--			request.sublist_id, 'id', i
+--		);
+--		// Search for an id within downstream items.
+--		for(var j = 0; j < downstream_items.length; j++){
+--			if(!downstream_items[j].hasOwnProperty('id')) {
+--				// New record, not interested in this yet
+--				continue;
+--			}
+--
+--			if(downstream_items[j]['id'] == upstream_id){
+--				// We have a match, we need to merge now
+--				for(var field in downstream_items[j]) {
+--					var upstream_value = record.getLineItemValue(
+--							request.sublist_id, field, i
+--					)
+--
+--					// Set if changed
+--					if(downstream_items[j][field] != upstream_value) {
+--						record.setLineItemValue(
+--							request.sublist_id,
+--							field,
+--							i,
+--							downstream_items[j][field]
+--						)
+--						we_touched_something = true;
+--					}
+--				}
+--			}
+--		}
+--	}
+--
+--	// 2. Delete all existing records that aren't in our new dataset
+--	for(var i = sublist_len; i > 0; i--) {
+--		var match = false;
+--		var upstream_id = record.getLineItemValue(
+--			request.sublist_id, 'id', i
+--		);
+--
+--		for(var j = 0; j < downstream_items.length; j++){
+--			if(!downstream_items[j].hasOwnProperty('id')) {
+--				continue;
+--			}
+--			if(downstream_items[j]['id'] == upstream_id) {
+--				match = true;
+--			}
+--		}
+--
+--		// Delete this item if it wasn't in the downstream data set
+--		if(!match) {
+--			record.removeLineItem(request.sublist_id, i);
+--			we_touched_something = true;
+--			sublist_len--;
+--		}
+--	}
+--
+--	// 3. Append items
+--	for(var i = 0; i < downstream_items.length; i++) {
+--		if(downstream_items[i].hasOwnProperty('id')) {
+--			continue;
+--		}
+--		// New item, append it.
+--		record.insertLineItem(request.sublist_id, ++sublist_len);
+--		we_touched_something = true;
+--
+--		for(var field in downstream_items[i]) {
+--			value = downstream_items[i][field];
+--			record.setLineItemValue(
+--				request.sublist_id, field, i, value
+--			);
+--		}
+--	}
+--
+--	// NetSuite explodes if we try to commit a sublist without altering it
+--	// in any way, so we have to keep this silly flag around.
+--	if(we_touched_something) {
+--		record.commitLineItem(request.sublist_id);
+--		nlapiSubmitRecord(record, true);
+--	};
+--
+--	return([]);
+--}
+--
+- // Given a record, sublist_id and array of fields, retrieve the whole sublist
+- // as an array of hashes 
+- function get_sublist(record, sublist_id, fields)
+diff --git a/spec/resource_spec.rb b/spec/resource_spec.rb
+index 2d95382..7eaf835 100644
+--- a/spec/resource_spec.rb
++++ b/spec/resource_spec.rb
+@@ -67,16 +67,6 @@ describe PseudoResource do
+ 
+ 			@p.firstname = 'name'
+ 
+-			note_item1 = @p.new_notes_item(:line => 'line 1')
+-			note_item2 = @p.new_notes_item(:line => 'line 2')
+-
+-			@p.notes << note_item1
+-			@p.notes << note_item2
+-
+-			# Replace them, backways to test.
+-			SubList.should_receive(:save!).
+-				and_return([note_item2, note_item1])
+-
+ 			Restlet.should_receive(:execute!).
+ 				with({
+ 					:action => 'create',
+@@ -91,9 +81,6 @@ describe PseudoResource do
+ 
+ 			expect(@p.firstname).to eql('Name')
+ 			expect(@p.lastname).to eql('nothing')
+-
+-			# Backwards now
+-			expect(@p.notes.first.line).to eql('line 2')
+ 		end
+ 
+ 		it 'has a pretty inspect' do
+@@ -266,14 +253,9 @@ describe PseudoResource do
+ 	end
+ 
+ 	context 'sublists on new object' do
+-		it 'can append a new list to blank object' do
++		it 'is empty' do
+ 			p = PseudoResource.new
+-			expect(p.new_notes_item).to be_a(NSConnector::SubListItem)
+-			p.notes << p.new_notes_item(:line => 'line 1')
+-			p.notes << p.new_notes_item(:line => 'line 2')
+-
+-			expect(p.notes.pop.line).to eql('line 2')
+-			expect(p.notes.pop.line).to eql('line 1')
++			expect(p.notes).to be_empty
+ 		end
+ 	end
+ end
+diff --git a/spec/sublist_spec.rb b/spec/sublist_spec.rb
+index 38b0147..ef2aea3 100644
+--- a/spec/sublist_spec.rb
++++ b/spec/sublist_spec.rb
+@@ -16,35 +16,6 @@ describe SubList do
+ 		)
+ 	end
+ 
+-	it 'saves' do
+-		Restlet.should_receive(:execute!).
+-			with({
+-				:action => 'save_sublist',
+-				:type_id => 'contact',
+-				:parent_id => '42',
+-				:sublist_id => 'sublist',
+-				:fields => ['field1', 'field2'],
+-				:data => [
+-					{'field1' => 'data'},
+-					{'field2' => 'otherdata'}
+-				]
+-			}).and_return(
+-				'true'
+-			)
+-
+-		SubList.should_receive(:fetch).and_return('hai')
+-		# Duplicates should be ignored, I figure? I'll be a little
+-		# confused if duplicates ever appear in NetSuite
+-		saved = SubList.save!(
+-			[@item1, @item1, @item2],
+-			@parent, 
+-			'sublist',
+-			['field1', 'field2']
+-		)
+-
+-		expect(saved).to eql('hai')
+-	end
+-
+ 	it 'fetches' do
+ 		Restlet.should_receive(:execute!).
+ 			with({
+diff --git a/support/restlet.js b/support/restlet.js
+index 4569862..3a7ad1b 100644
+--- a/support/restlet.js
++++ b/support/restlet.js
+@@ -193,133 +193,6 @@ function create(request)
+ 	));
+ }
+ 
+-// Save a sublist, trying to merge changes nicely.
+-//
+-// Returns:: True, note that you will need to fetch the updated items yourself,
+-// as netsuite seems to need a little while to think about any newly added
+-// records or it freaks out.
+-//
+-// Raises:: An invalid sublist operation error, often, as apparently you're not
+-// allowed to delete certain sublists even though you can append to them. Kind
+-// of really annoying. Not much I can do about it.
+-//
+-// Also seems to raise a 500 on modifying existing items if it doesn't want you
+-// to.
+-// 
+-// We have the minor problem here of only being able to modify existing line
+-// items in place, insert new ones and delete old ones, not rewrite the whole
+-// list. This problem is easily dealt with if we simply don't worry about
+-// order. So, new items should be appended to the end, and the existing order
+-// shouldn't be messed with, however if you wanted to say, pull the whole list
+-// out and reverse the order, you're out of luck. 
+-//
+-// It's possible to do, I think. I have other things to work on just now.
+-//
+-// So we have three basic steps:
+-//
+-// 1. Modify all existing records that have changed, identifying by id.
+-// 2. If the existing record does not appear in the new list, delete it.
+-// 3. Append new records to the end.
+-function save_sublist(request)
+-{
+-	if(!request.hasOwnProperty('parent_id')) {
+-		argument_error("Missing mandatory argument: parent_id");
+-	}
+-
+-	if(!request.hasOwnProperty('sublist_id')) {
+-		argument_error("Missing mandatory argument: sublist_id");
+-	}
+-
+-	var record = nlapiLoadRecord(request.type_id, request.parent_id);
+-	var sublist_len = record.getLineItemCount(request.sublist_id);
+-	var downstream_items = request.data;
+-	var we_touched_something = false;
+-
+-	// 1. Modify all existing records that have been changed.
+-	for(var i = 1; i <= sublist_len; i++) {
+-		var upstream_id = record.getLineItemValue(
+-			request.sublist_id, 'id', i
+-		);
+-		// Search for an id within downstream items.
+-		for(var j = 0; j < downstream_items.length; j++){
+-			if(!downstream_items[j].hasOwnProperty('id')) {
+-				// New record, not interested in this yet
+-				continue;
+-			}
+-
+-			if(downstream_items[j]['id'] == upstream_id){
+-				// We have a match, we need to merge now
+-				for(var field in downstream_items[j]) {
+-					var upstream_value = record.getLineItemValue(
+-							request.sublist_id, field, i
+-					)
+-
+-					// Set if changed
+-					if(downstream_items[j][field] != upstream_value) {
+-						record.setLineItemValue(
+-							request.sublist_id,
+-							field,
+-							i,
+-							downstream_items[j][field]
+-						)
+-						we_touched_something = true;
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	// 2. Delete all existing records that aren't in our new dataset
+-	for(var i = sublist_len; i > 0; i--) {
+-		var match = false;
+-		var upstream_id = record.getLineItemValue(
+-			request.sublist_id, 'id', i
+-		);
+-
+-		for(var j = 0; j < downstream_items.length; j++){
+-			if(!downstream_items[j].hasOwnProperty('id')) {
+-				continue;
+-			}
+-			if(downstream_items[j]['id'] == upstream_id) {
+-				match = true;
+-			}
+-		}
+-
+-		// Delete this item if it wasn't in the downstream data set
+-		if(!match) {
+-			record.removeLineItem(request.sublist_id, i);
+-			we_touched_something = true;
+-			sublist_len--;
+-		}
+-	}
+-
+-	// 3. Append items
+-	for(var i = 0; i < downstream_items.length; i++) {
+-		if(downstream_items[i].hasOwnProperty('id')) {
+-			continue;
+-		}
+-		// New item, append it.
+-		record.insertLineItem(request.sublist_id, ++sublist_len);
+-		we_touched_something = true;
+-
+-		for(var field in downstream_items[i]) {
+-			value = downstream_items[i][field];
+-			record.setLineItemValue(
+-				request.sublist_id, field, i, value
+-			);
+-		}
+-	}
+-
+-	// NetSuite explodes if we try to commit a sublist without altering it
+-	// in any way, so we have to keep this silly flag around.
+-	if(we_touched_something) {
+-		record.commitLineItem(request.sublist_id);
+-		nlapiSubmitRecord(record, true);
+-	};
+-
+-	return([]);
+-}
+-
+ // Given a record, sublist_id and array of fields, retrieve the whole sublist
+ // as an array of hashes 
+ function get_sublist(record, sublist_id, fields)
+@@ -393,7 +266,6 @@ function main(request)
+ 		'retrieve'      : retrieve,
+ 		'search'        : search,
+ 		'update'        : update,
+-		'save_sublist'  : save_sublist,
+ 		'fetch_sublist' : fetch_sublist
+ 	}
+ 

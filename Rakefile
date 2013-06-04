@@ -12,30 +12,21 @@ require 'rdoc/task'
 require 'jeweler'
 require 'rspec/core/rake_task'
 
+task :default => :test
+
 Jeweler::Tasks.new do |gem|
 	gem.name = "ns_connector"
-	gem.homepage = ""
+	gem.homepage = "https://github.com/christian-marie/ns_connector"
 	gem.summary = "An interface to NetSuite records via RESTlets."
 	gem.description = "This library provides an interface to NetSuite via"\
-		"‘RESTlets’. This appears to be a quicker and more reliable"\
+		"'RESTlets'. This appears to be a quicker and more reliable"\
 		"way of interfacing with NetSuite records than the SOAP API."
-	gem.authors = ["Christian Marie"]
+	gem.authors = ["Christian Marie <pingu@anchor.com.au>"]
+	gem.email = 'pingu@anchor.com.au'
 end
 Jeweler::RubygemsDotOrgTasks.new
 
-task :default => :test
 RSpec::Core::RakeTask.new :test 
-
-task :deploy_to_hopper => [:build, :rdoc, :test] do
-	`scp pkg/anchor_api-$(cat VERSION).gem packages@hopper.engineroom.anchor.net.au:public_html/gems/gems/`
-	`scp -r html/* packages@hopper.engineroom.anchor.net.au:public_html/gems/docs/anchor_api/`
-	`ssh packages@hopper.engineroom.anchor.net.au "cd /home/packages/public_html/gems && make"`
-	if $?.to_i == 0 then
-		 puts "Deploy to hopper successful"
-	else
-	       raise RuntimeError, "Deploy failed :("
-	end
-end
 
 Rake::RDocTask.new do |rd|
 	rd.main = "README.rdoc"

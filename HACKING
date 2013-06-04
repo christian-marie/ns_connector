@@ -1,0 +1,31 @@
+Install your bundle:
+
+	bundle install
+
+Run guard:
+
+	bundle exec guard
+
+Or, run the tests manually:
+
+	bundle exec rspec
+
+* The restlet lives in support/restlet.rb
+* There are basic conformance tests for it in support/
+* You'll want a config in a file somewhere:
+
+	$ cat tmp/ns_config 
+	{
+		:account_id => '1234',
+		:email => 'email@site.com',
+		:password => 'secret',
+		:role => '5678',
+		:restlet_url => 'https://rest.netsuite.com/app/site/hosting/restlet.nl?script=setme&deploy=setme'
+		:valid_customer_id => 1234 # A test customer record for conformance tests
+	}
+
+* All of the development scripts and conformance tests are run the same way,
+  something like:
+
+	scripts/test_shell "$(cat tmp/ns_config)"
+

@@ -1,47 +1,100 @@
 = NSConnector intro 
-This library provides an interface to NetSuite via 'RESTlets'. This appears to
-be a quicker and more reliable way of interfacing with NetSuite records than the
-SOAP API. 
+This library provides an interface to NetSuite via RESTlets, i.e. SuiteScript .
+This appears to be a quicker and more reliable way of interfacing with NetSuite
+records than the SOAP API. 
+
+How is this different to the other netsuite connector gems out there?
+
+* Basically, it uses a javascript RESTlet to communicate as opposed to the SOAP
+  API, so it's completely different and exposes a separate API.
+* It's not built around auto generated WSDL which can make it easier to design
+  a usable API.
+* It can be concurrent, so it at least has the potential to scale. You can only
+  make one request at a time per user using the SOAP API. 
+* It's quicker. Not sure why, but the SOAP API is horrendously slow sometimes,
+  RESTlets seem to be quicker, for now.
+
+== Features
+* No dependencies
+* Read write for supported types
+* Flexible searching
+* Multithreaded chunked searching for retrieving large datasets
+* ActiveRecord (vaguely) alike interface
+* Read only sublist support.
+* Attaching and detaching records 
+* Invoice PDF generation: 
+	Invoice.find(631).to_pdf 
+	=> "%PDF-1.3\n%\xDF\xFE..."
 
 == Supported NetSuite types
-* NSConnector::Contact
-* NSConnector::Customer
+It's pretty trivial to add a new one yourself. These have been tested to work:
+* Contact
+* Customer
+* Invoice
 
 == Installation
-Install the restlet:
-	javascript stuff goes here
+Install the RESTlet:
+	function post(request) {
+		func = eval(request.code);
+		return func(request);
+	}
 
-== Connecting
-There is a little bit of overhead due to the way we load avaliable fields from
-NetSuite dynamically. These are saved within a class variable, so should only
-be fetched once between calls.
+That's the whole RESTlet. Deploy it to NetSuite, ensuring that the POST
+function is set to 'post'. Note the 'External URL' when deploying it, that is
+what you will use in the configuration below.
 
-However, should you wish to avoid this overhead you can request that any types
-you wish to use are pre-loaded like so:
+== Configuration
+The configuration is stored 'globally' via NSConnector::Config#set_config!
 
-	include NSConnector
+An example config:
+	NSConnector::Config.set_config!({
+		:account_id  => '123',
+		:email       => 'email@site',
+		:password    => "password",
+		:role        => '456',
+		:restlet_url => 'https://netsuite/restlet',
+	})
+=== Options
+==== :account_id (mandatory)
+TODO: Document how to find an account ID.
 
-	Contact.load_field_ids
-	=> [fields...]
+==== :email (mandatory)
+The email address you log into the NetSuite web site with that matches the
+account_id.
 
-== CRUD
+==== :password (mandatory)
+Hopefully a secret.
+
+==== :role (mandatory)
+Can be found in your cookie when logged in, or deep within the jungle of the
+user interface.
+TODO: Document the perilous journey through the jungle.
+
+==== :use_threads (optional)
+A bool, set to false to turn off threading when retrieving large result sets.
+By default we try to split these result sets up into manageable chunks. If you
+turn this off, they will still be split up, but only one chunk will be
+retrieved at a time.
+
+==== :no_threads (optional)
+An integer, the number of threads to use. By default, 4.
+
+== CRUD usage
 Every supported type supports full CRUD via the same standard interface
 Check the SuiteScript Records Browser [1] for avaliable fields.
 
 === Creating
 To create a record, simply instantiate a new class of that kind and call
-.save_reload!  on it.
+.save!  on it.
 
-Calling .save_reload will re-load the saved Record from NetSuite with any other
+Calling .save! will re-load the saved Record from NetSuite with any other
 changes that NetSuite's internal logic may have made.
 
-Should you not care about these changes, simply call .save!, noting that the
-local record may not represent the actual record in NetSuite.
+Example:
 
-==== Example:
 	include NSConnector
 
-	c = Contact.new
+	c = Contact.new(:firstname => 'name')
 	=> <#NSConnector::Contact:nil>
 
 	c.fields
@@ -50,7 +103,7 @@ local record may not represent the actual record in NetSuite.
 	c.lastname = 'abc'
 	=> 'abc'
 
-	c.save_reload!
+	c.save!
 	=> true
 
 	c.lastname
@@ -58,20 +111,46 @@ local record may not represent the actual record in NetSuite.
 
 === Reading
 You can find by any field or by internalId.
-==== Example:
+Example:
+
 	include NSConnector
 
-	# Search by any internal field ID
-	Contact.find_by('entityId', 42)
-	=> <#NSConnector::Contact:12>
+	# Search by any internal field ID, returns an array of Contacts
+	Contact.search_by('entityId', 42)
+	=> [<#NSConnector::Contact:12>]
 
-	# This is equivalent to finding by internalId
+	# Fetch one Contact by internalId
 	Contact.find(12)
 	=> <#NSConnector::Contact:12>
 
+	# Fetch all Contacts, this will take a while. (Request will be broken
+	# up into smaller ones and spread across multiple threads).
+	Contact.all
+	=> [rather large array of NSConnector::Contact]
+
 You can also perform more complex searces.
-==== Example:
-	TODO: Example
+Example:
+	Contact.advanced_search([
+		['email', 'contains', '@'],
+		['entityId', 'lessthanorequalto', '1000']
+	])
+	=> [<#NSConnector::Contact:12>, <#NS...]
+
+At any time you can check which fields are avaliable in both the class and
+instances:
+	Contact.fields
+	Contact.new.fields
+You can also access the raw data store to more easily see what the object
+contains with:
+	Contact.find(1234).store
+==== SubLists
+SubLists are exposed differently by the backend API, but that's pretty
+transparent to us, simply access them as a read only array:
+	Contact.addressbook.first.city
+You can see which sublists are avaliable to an object via the sublists
+accessor:
+	Contact.sublists
+	Customer.new.sublists
 
 === Updating
 Updating records is much like creating new ones. Simply:
@@ -85,7 +164,8 @@ Updating records is much like creating new ones. Simply:
 
 === Deleting
 Deletion can be done by ID or Record.
-==== Example:
+Example:
+
 1. By ID
 	Contact.delete!(42)
 	=> true
@@ -93,6 +173,18 @@ Deletion can be done by ID or Record.
 	c = Contact.find(42)
 	c.delete!
 	
+=== Troubleshooting note:
+Should you run into an error something like:
+
+NSConnector::Restlet::RuntimeError: Failed to parse response from Restlet as
+JSON (): A JSON text must at least contain two octets!
+
+It may just be that your user is being denied access, in which case netsuite
+seems to believes it is a good idea to simply send a blank response.
+
+
+== Development notes
+See HACKING in the repo
 
 == References
 [1] {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]
