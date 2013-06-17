@@ -20,6 +20,7 @@ Jeweler::Tasks.new do |gem|
 		"'RESTlets'. This appears to be a quicker and more reliable"\
 		"way of interfacing with NetSuite records than the SOAP API."
 	gem.authors = ["Christian Marie <pingu@anchor.com.au>"]
+	gem.license = 'MIT'
 end
 Jeweler::RubygemsDotOrgTasks.new
 

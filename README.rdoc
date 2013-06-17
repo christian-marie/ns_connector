@@ -184,5 +184,8 @@ seems to believes it is a good idea to simply send a blank response.
 == Development notes
 See HACKING in the repo
 
+== License
+MIT
+
 == References
 [1] {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]

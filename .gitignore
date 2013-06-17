@@ -1,3 +1,4 @@
 html/
 tmp/
 pkg/
+ns_connector.gemspec
