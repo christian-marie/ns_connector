@@ -1,0 +1,3 @@
+v0.0.7:
+	* SubList creation support on new records (and only new records)
+	* New resource type: CustomerPayment
