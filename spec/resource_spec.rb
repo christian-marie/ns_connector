@@ -321,6 +321,26 @@ describe PseudoResource do
 		end
 	end
 
+	context 'transform' do
+		include_context 'found_resource'
+		it 'transform! s' do
+			Restlet.should_receive(:execute!).
+				with({
+					:action=>"transform",
+					:source_type_id=>"pseudoresource",
+					:target_type_id=>"otherresource",
+					:source_id=>"1", 
+					:fields=>["id", "fax"],
+					:data=>{"fax"=>"123"}
+				})
+
+			@found_resource.transform!(OtherResource) do |o|
+				expect(o).to be_a(OtherResource)
+				o.fax = '123'
+			end
+		end
+	end
+
 	context 'link aliases' do
 		include_context 'found_resource'
 

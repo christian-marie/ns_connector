@@ -24,6 +24,7 @@ How is this different to the other netsuite connector gems out there?
 * SubList item creation on creating new records only. (>= v0.0.7)
 * Attaching and detaching records 
 * Invoice PDF generation.
+* Record transformations.
 
 == Supported NetSuite types
 It's pretty trivial to add a new one yourself. These have been tested to work:
@@ -189,6 +190,19 @@ Example:
 2. By Record
   c = Contact.find(42)
   c.delete!
+
+== Record transformations
+You can transform records into other records as per the supported transformation types in NetSuite [2]
+
+e.g.
+	Invoice.find(2106).transform!(CustomerPayment) do |payment|
+		payment.ccnumber = '4222222222222'
+	end
+	=> {"id"=>"2107",
+	"account"=>"",
+	"allowemptycards"=>nil,
+	"applied"=>"99.99" ...
+
   
 === Troubleshooting note:
 Should you run into an error something like:
@@ -208,3 +222,4 @@ MIT
 
 == References
 [1] {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]
+[2] {Supported Transformation Types}[https://system.netsuite.com/help/helpcenter/en_US/Output/Help/SuiteFlex/SuiteScript/SSAPI_RecordAPIs.html#N1030776904-18]

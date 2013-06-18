@@ -34,6 +34,33 @@ function get_record_by_id(type_id, fields, id)
 	return(response);
 }
 
+// Transfrom from a record type, to another, given ID. The set a bunch of
+// fields on that new record type.
+// Arguments::
+// 	source_id:: source record internal id
+// 	source_type_id:: source record type, e.g. invoice
+// 	target_type_id:: target record type, e.g. customerpayment
+// 	data:: hash of key/values to set before saving the new deferred record
+// 	fields:: array of fields for target type
+function transform(request) 
+{
+	var deferred = nlapiTransformRecord(
+		request.source_type_id,
+		request.source_id,
+		request.target_type_id
+	);
+
+	for(var field in request.data) {
+		deferred.setFieldValue(field, request.data[field]);
+	}
+
+	return(get_record_by_id(
+		request.target_type_id,
+		request.fields,
+		nlapiSubmitRecord(deferred, true)
+	));
+}
+
 // In order to update an item, we create a diff of what has actually changed,
 // then commit just those changes.
 function update(request)
@@ -41,6 +68,8 @@ function update(request)
 	if(!request.data.hasOwnProperty('id')) {
 		argument_error('update action requires an id');
 	}
+
+	return(nlapiSubmitRecord(newrec, true));
 
 	var diff = {};
 	var record = nlapiLoadRecord(request.type_id, request.data.id);
@@ -389,6 +418,7 @@ function main(request)
 		'attach'   	: attach,
 		'detach'   	: detach,
 		'raw_search'   	: raw_search,
+		'transform'   	: transform
 	}
 
 	if(!(request.action in actions)) {

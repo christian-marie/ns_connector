@@ -6,6 +6,7 @@ require 'ns_connector/hash'
 require 'ns_connector/sublist'
 require 'ns_connector/sublist_item'
 require 'ns_connector/attaching'
+require 'ns_connector/transforming'
 
 # This is a 'meta' class that all our useful NetSuite classes inherit from,
 # overriding what they may need to. For example:
@@ -17,6 +18,7 @@ class NSConnector::Resource
 	include NSConnector::FieldStore
 	extend NSConnector::ChunkedSearching
 	extend NSConnector::Attaching
+	extend NSConnector::Transforming
 
 	attr_accessor :store
 
@@ -95,6 +97,16 @@ class NSConnector::Resource
 	def detach!(klass, ids)
 		raise ::ArgumentError, 'Need an id to detach!' unless id
 		self.class.detach!(klass, id, ids)
+	end
+
+	# Transform this instance into target klass
+	# Arguments::
+	#   klass:: Target class, e.g. CustomerPayment
+	#   &block:: optional block, will recieve an instance of target klass
+	#     to perform optional modifications to the object before it is
+	#     saved in NetSuite, like setting payment details.
+	def transform!(klass, &block)
+		self.class.transform!(klass, id, &block)
 	end
 
 	# Format an object like: '#<NSConnector::PseudoResource:1>'
