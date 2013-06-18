@@ -195,13 +195,13 @@ Example:
 You can transform records into other records as per the supported transformation types in NetSuite [2]
 
 e.g.
-	Invoice.find(2106).transform!(CustomerPayment) do |payment|
-		payment.ccnumber = '4222222222222'
-	end
-	=> {"id"=>"2107",
-	"account"=>"",
-	"allowemptycards"=>nil,
-	"applied"=>"99.99" ...
+  Invoice.find(2106).transform!(CustomerPayment) do |payment|
+    payment.ccnumber = '4222222222222'
+  end
+  => {"id"=>"2107",
+  "account"=>"",
+  "allowemptycards"=>nil,
+  "applied"=>"99.99" ...
 
   
 === Troubleshooting note:
