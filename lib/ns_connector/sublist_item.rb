@@ -22,4 +22,8 @@ class NSConnector::SubListItem
 	def inspect
 		"#<NSConnector::#{self.class}:#{name}>"
 	end
+
+	def to_hash
+		@store
+	end
 end

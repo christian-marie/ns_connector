@@ -225,16 +225,31 @@ function delete_id(request)
 function create(request)
 {
 	var record = nlapiCreateRecord(request.type_id);
-	var response = {};
 
 	for(var field in request.data) {
 		record.setFieldValue(field, request.data[field]);
 	}
 
-	for(var i = 0; i < request.fields.length; i++ ) {
-		response[request.fields[i]] = record.getFieldValue(
-			request.fields[i]
-		);
+	// request.sublists is a hash that looks like this:
+	// {'addressbook' => [{'addr1' => 'line 1 of address'}]
+	//
+	// Note: For some reason when you try to commit the line item, as the
+	// documentation says you *must*, the item is not saved.
+	//
+	// So, we don't. And it works.
+	for(var sublist_id in request.sublists) {
+		for(var i = 0; i < request.sublists[sublist_id].length; i++) {
+			var item = request.sublists[sublist_id][i];
+			record.insertLineItem(sublist_id, i + 1);
+			for(var subfield in item) {
+				record.setLineItemValue(
+					sublist_id,
+					subfield,
+					i + 1,
+					item[subfield]
+				);
+			}
+		}
 	}
 
 	return(get_record_by_id(

@@ -84,13 +84,19 @@ describe PseudoResource do
 			}
 
 			@p.firstname = 'name'
+			@p.notes << @p.new_notes_item(:line => 'line1')
 
 			Restlet.should_receive(:execute!).
 				with({
 					:action => 'create',
 					:type_id => 'pseudoresource',
 					:fields => ['id', 'firstname', 'lastname'],
-					:data => {'firstname' => 'name'}
+					:data => {'firstname' => 'name'},
+					:sublists => { 
+						:notes => [
+							{'line' => 'line1'}
+						]
+					},
 				}).
 				once.
 				and_return(ns_reply)
@@ -241,7 +247,8 @@ describe PseudoResource do
 						'firstname' => 'new',
 						'lastname' => 'orig',
 						'id' => '1'
-					}
+					},
+					:sublists => {}
 				}).
 				once.
 				and_return({'firstname' => 'New'})

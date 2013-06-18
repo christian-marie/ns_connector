@@ -115,13 +115,21 @@ class NSConnector::Resource
 	# Raises:: NSConnector::Errors various errors if something explodes
 	# Returns:: true
 	def save!
+		# Convert all of our sublist objects to hashes
+		sublists = Hash[@sublist_store.map {|sublist_id, objects|
+			[sublist_id, objects.map {|object|
+				object.to_hash
+			}]
+		}]
+
 		@store = NSConnector::Restlet.execute!(
 			:action => in_netsuite? ? 'update' : 'create',
 			:type_id => type_id,
 			:fields => fields,
-			:data => @store
+			:data => @store,
+			:sublists => sublists,
 		)
-		# If we got this far, we're definitely in NetSuite
+		# If we got this far, we're probably in NetSuite
 		@in_netsuite = true
 
 		return true
@@ -281,6 +289,17 @@ class NSConnector::Resource
 						) if in_netsuite?
 
 					@sublist_store[sublist_name] ||= []
+				end
+
+				define_method(
+					"new_#{sublist_name}_item"
+				) do |upstream_store = nil|
+					NSConnector::SubListItem.new(
+						sublist_name,
+						fields,
+						self,
+						upstream_store
+					)
 				end
 			end
 		end

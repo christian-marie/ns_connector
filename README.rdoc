@@ -21,6 +21,7 @@ How is this different to the other netsuite connector gems out there?
 * Multithreaded chunked searching for retrieving large datasets
 * ActiveRecord (vaguely) alike interface
 * Read only sublist support.
+* SubList item creation on creating new records only. (>= v0.0.7)
 * Attaching and detaching records 
 * Invoice PDF generation.
 
@@ -28,6 +29,7 @@ How is this different to the other netsuite connector gems out there?
 It's pretty trivial to add a new one yourself. These have been tested to work:
 * Contact
 * Customer
+* CustomerPayment
 * Invoice
 
 == Installation
@@ -106,6 +108,23 @@ Example:
 
   c.lastname
   => 'Abc'
+
+SubLists can be added to a record on creation. Here is how that works:
+
+	include NSConnector
+	c = Contact.new(:firstname => 'name')
+	c.sublists
+	=> {:addressbook=>
+	  [:addr1,
+	  ...
+
+	c.addressbook << c.new_addressbook_item({
+		:addr1 => 'address line 1',
+		:city => 'unicorn valley'
+	})
+
+	c.save!
+	=> true
 
 === Reading
 You can find by any field or by internalId.
