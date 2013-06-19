@@ -29,6 +29,8 @@ module NSConnector::Errors
 	Conflict = Class.new(NSError)
 	# Usually a search run on an invalid field
 	InvalidSearchFilter = Class.new(NSError)
+	# Credit card processing problems
+	CCProcessorError = Class.new(NSError)
 
 	# Internal use 
 	BeginChunking = Class.new(NSError)
@@ -61,6 +63,8 @@ module NSConnector::Errors
 			raise NotFound, error
 		when 'SSS_INVALID_SRCH_FILTER'
 			raise InvalidSearchFilter, error
+		when 'CC_PROCESSOR_ERROR'
+			raise CCProcessorError
 		when /_ALREADY_EXISTS$/
 			raise Conflict, error
 		else
