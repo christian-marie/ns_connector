@@ -1,6 +1,5 @@
 GEM
   remote: http://rubygems.org/
-  remote: http://packages.anchor.net.au/gems/
   specs:
     addressable (2.3.4)
     coderay (1.0.9)
