@@ -69,8 +69,6 @@ function update(request)
 		argument_error('update action requires an id');
 	}
 
-	return(nlapiSubmitRecord(newrec, true));
-
 	var diff = {};
 	var record = nlapiLoadRecord(request.type_id, request.data.id);
 
