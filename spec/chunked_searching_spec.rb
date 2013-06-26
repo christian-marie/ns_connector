@@ -4,6 +4,9 @@ class MagicResource
 	extend NSConnector::ChunkedSearching
 	def initialize upstream_store
 	end
+	def self.fields
+		['f1', 'f2']
+	end
 	def self.type_id
 		'magic'
 	end
@@ -31,6 +34,7 @@ describe NSConnector::ChunkedSearching do
 			with({
 				:action => 'search', 
 				:type_id => 'magic',
+				:fields => ['f1', 'f2'],
 				:data => {
 					:filters => 'filters',
 					:chunk => 42

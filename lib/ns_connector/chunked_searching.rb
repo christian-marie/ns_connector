@@ -7,6 +7,7 @@ module NSConnector::ChunkedSearching
 		NSConnector::Restlet.execute!(
 			:action => 'search',
 			:type_id => type_id,
+			:fields => fields,
 			:data => {
 				:filters => filters,
 				:chunk => chunk,
