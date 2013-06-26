@@ -13,6 +13,8 @@ How is this different to the other netsuite connector gems out there?
   make one request at a time per user using the SOAP API. 
 * It's quicker. Not sure why, but the SOAP API is horrendously slow sometimes,
   RESTlets seem to be quicker, for now.
+== Documentation
+Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.7/frames]
 
 == Features
 * No dependencies
