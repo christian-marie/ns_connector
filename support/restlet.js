@@ -1,6 +1,6 @@
 // How large a result set we try to return before splitting it up into smaller
 // chunks
-var CHUNK_SIZE = 100;
+var CHUNK_SIZE = 50;
 
 // Okay, so this is some dodgy meta shit that I probably really shouldn't be
 // doing in javascript. It's not my fault the API is odd.
