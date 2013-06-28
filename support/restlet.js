@@ -181,7 +181,7 @@ function raw_search(request)
 		for(var j = 0; j < result_set.length; j++) {
 			response.push([]);
 			for(var k = 0; k < columns.length; k++) {
-				response[j].push(
+				response[j+i].push(
 					result_set[j].getValue(columns[k])
 				);
 			}
