@@ -177,7 +177,7 @@ function raw_search(request)
 	// We go 1000 at a time as that is the maximum we are allowed
 	var MAX_PER_GET=1000;
 	for(var i = 0; true; i += MAX_PER_GET) {
-		var result_set = search_result.getResults(i, MAX_PER_GET);
+		var result_set = search_result.getResults(i, i+MAX_PER_GET);
 		for(var j = 0; j < result_set.length; j++) {
 			response.push([]);
 			for(var k = 0; k < columns.length; k++) {
