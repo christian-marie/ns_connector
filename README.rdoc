@@ -21,7 +21,6 @@ Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.10]
 * Read write for supported types
 * Flexible searching
 * Multithreaded chunked searching for retrieving large datasets
-* ActiveRecord (vaguely) alike interface
 * Read only sublist support.
 * SubList item creation on creating new records only. (>= v0.0.7)
 * Attaching and detaching records 
@@ -205,6 +204,14 @@ e.g.
   "allowemptycards"=>nil,
   "applied"=>"99.99" ...
 
+== Attaching records
+You can attach/detach records with #attach! and #detach!, it's pretty simple.
+
+  # Attach customer 123 to contacts 1, 2 and 3 with the role of 1
+  Customer.find(123).attach!(Contact, [1,2,3], :role => 1)
+
+  # Or anonymously like:
+  Customer.attach!(Contact, 123, [1,2,3], :role => 1)
   
 === Troubleshooting note:
 Should you run into an error something like:
