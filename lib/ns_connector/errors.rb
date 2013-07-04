@@ -6,20 +6,20 @@ module NSConnector::Errors
 	# Parent class to encapsulate all successfully parsed JSON netsuite
 	# error responses. 
 	class NSError < Exception
-		def initialize netsuite_error
-			@netsuite_error = netsuite_error
+		def initialize netsuite_error=nil
+			@netsuite_error = netsuite_error if netsuite_error
 		end
 
 		# Returns the error code from the JSON returned by netsuite.
 		# Something like: "RCRD_DSNT_EXIST"
 		def code
-			@netsuite_error['code']
+			@netsuite_error['code'] rescue nil
 		end
 
 		# Takes the error message straight out of the netsuite
 		# response. Usually makes some sense.
 		def message
-			@netsuite_error['message']
+			@netsuite_error['message'] rescue nil
 		end
 	end
 

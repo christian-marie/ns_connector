@@ -142,6 +142,10 @@ Example:
   Contact.find(12)
   => <#NSConnector::Contact:12>
 
+  # Fetch one Customer by entityid
+  Customer.find_by('entityid', 1234)
+  => <#NSConnector::Contact:12>
+
   # Fetch all Contacts, this will take a while. (Request will be broken
   # up into smaller ones and spread across multiple threads).
   Contact.all

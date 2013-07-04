@@ -197,6 +197,18 @@ class NSConnector::Resource
 			)
 		end
 
+		# Return a single resource, by searching for the given field.
+		# Returns:: A single record
+		# Raises:: NSConnector::Errors::NotFound when nothing found
+		def find_by(field, value)
+			results = search_by(field, value)
+			unless results.empty? then
+				return results.first
+			else
+				raise NSConnector::Errors::NotFound
+			end
+		end
+
 		# Retrieve all records, will most likely become a chunked
 		# search due to size
 		def all
