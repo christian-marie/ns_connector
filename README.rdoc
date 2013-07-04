@@ -113,20 +113,20 @@ Example:
 
 SubLists can be added to a record on creation. Here is how that works:
 
-	include NSConnector
-	c = Contact.new(:firstname => 'name')
-	c.sublists
-	=> {:addressbook=>
-	  [:addr1,
-	  ...
+  include NSConnector
+  c = Contact.new(:firstname => 'name')
+  c.sublists
+  => {:addressbook=>
+    [:addr1,
+    ...
 
-	c.addressbook << c.new_addressbook_item({
-		:addr1 => 'address line 1',
-		:city => 'unicorn valley'
-	})
+  c.addressbook << c.new_addressbook_item({
+    :addr1 => 'address line 1',
+    :city => 'unicorn valley'
+  })
 
-	c.save!
-	=> true
+  c.save!
+  => true
 
 === Reading
 You can find by any field or by internalId.
