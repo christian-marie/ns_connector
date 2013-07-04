@@ -14,7 +14,7 @@ How is this different to the other netsuite connector gems out there?
 * It's quicker. Not sure why, but the SOAP API is horrendously slow sometimes,
   RESTlets seem to be quicker, for now.
 == Documentation
-Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.10]
+Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.12]
 
 == Features
 * No dependencies
