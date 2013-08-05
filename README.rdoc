@@ -235,4 +235,4 @@ MIT
 
 == References
 [1] {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]
-[2] {Supported Transformation Types}[https://system.netsuite.com/help/helpcenter/en_US/Output/Help/SuiteFlex/SuiteScript/SSAPI_RecordAPIs.html#N1030776904-18]
+[2] {Supported Transformation Types}[https://system.netsuite.com/help/helpcenter/en_US/Output/Help/SuiteCloudCustomizationScriptingWebServices/SuiteScript/RecordAPIs.html#bridgehead_N3033016]
