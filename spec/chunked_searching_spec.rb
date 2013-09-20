@@ -19,9 +19,12 @@ describe NSConnector::ChunkedSearching do
 	end
 
 	def mock_chunked_search
-		(0..5).each do |i|
-			MagicResource.should_receive(:grab_chunk).
-				with('filters', i).and_return([1,2,3])
+		(0..20).each do |i|
+			MagicResource.stub(:grab_chunk) do |arg, n|
+				expect(arg).to eql('filters')
+				expect(0..20).to include(n)
+				[1,2,3]
+			end
 		end
 
 		MagicResource.should_receive(:grab_chunk).
