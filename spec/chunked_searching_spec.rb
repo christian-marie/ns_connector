@@ -21,11 +21,11 @@ describe NSConnector::ChunkedSearching do
 	def mock_chunked_search
 		(0..5).each do |i|
 			MagicResource.should_receive(:grab_chunk).
-				with('filters', i).ordered.and_return([1,2,3])
+				with('filters', i).and_return([1,2,3])
 		end
 
 		MagicResource.should_receive(:grab_chunk).
-			with('filters', 6).ordered.
+			with('filters', 6).
 			and_raise(NSConnector::Errors::EndChunking, double)
 	end
 
