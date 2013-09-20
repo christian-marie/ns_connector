@@ -9,4 +9,5 @@ group :development do
 	gem 'rdoc'
 	gem 'pry-debugger'
 	gem 'guard-rspec'
+	gem 'coveralls', :require => false
 end
