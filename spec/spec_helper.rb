@@ -6,8 +6,11 @@ require 'pp'
 require 'rspec'
 require 'webmock/rspec'
 require 'ns_connector'
-
 require 'support/mock_data'
+
+require 'coveralls'
+Coveralls.wear!
+
 
 RSpec.configure do |config|
 	config.order = "random"

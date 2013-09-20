@@ -1,4 +1,6 @@
 {<img src="https://travis-ci.org/christian-marie/ns_connector.png?branch=master" alt="Build Status" />}[https://travis-ci.org/christian-marie/ns_connector]
+
+{<img src="https://coveralls.io/repos/christian-marie/ns_connector/badge.png?branch=master" alt="Coverage Status" />}[https://coveralls.io/r/christian-marie/ns_connector?branch=master] 
 = NSConnector intro 
 This library provides an interface to NetSuite via RESTlets, i.e. SuiteScript .
 This appears to be a quicker and more reliable way of interfacing with NetSuite
