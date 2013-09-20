@@ -7,7 +7,6 @@ group :development do
 	gem 'jeweler'
 	gem 'bundler'
 	gem 'rdoc'
-	gem 'pry-debugger'
 	gem 'guard-rspec'
 	gem 'coveralls', :require => false
 end

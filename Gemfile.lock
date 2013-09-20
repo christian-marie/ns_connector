@@ -3,7 +3,6 @@ GEM
   specs:
     addressable (2.3.4)
     coderay (1.0.9)
-    columnize (0.3.6)
     coveralls (0.7.0)
       multi_json (~> 1.3)
       rest-client
@@ -11,12 +10,6 @@ GEM
       term-ansicolor
       thor
     crack (0.3.2)
-    debugger (1.5.0)
-      columnize (>= 0.3.1)
-      debugger-linecache (~> 1.2.0)
-      debugger-ruby_core_source (~> 1.2.0)
-    debugger-linecache (1.2.0)
-    debugger-ruby_core_source (1.2.0)
     diff-lcs (1.2.4)
     ffi (1.8.1)
     formatador (0.2.4)
@@ -48,9 +41,6 @@ GEM
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
-    pry-debugger (0.2.2)
-      debugger (~> 1.3)
-      pry (~> 0.9.10)
     rake (10.0.4)
     rb-fsevent (0.9.3)
     rb-inotify (0.9.0)
@@ -90,7 +80,6 @@ DEPENDENCIES
   coveralls
   guard-rspec
   jeweler
-  pry-debugger
   rake
   rdoc
   rspec
