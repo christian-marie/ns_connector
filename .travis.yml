@@ -3,8 +3,7 @@ rvm:
   - "1.9.2"
   - "1.9.3"
   - "2.0.0"
-# - jruby-19mode     FIXME I believe that grabbing chunks ahead of time is
-# - rbx-19mode              just fine. Better be safe and not ignore these
-#                           failures before testing though.
+  - jruby-19mode
+  - rbx-19mode 
 
 script: bundle exec rspec
