@@ -59,6 +59,8 @@ module NSConnector::ChunkedSearching
 					rescue NSConnector::Errors::EndChunking
 						done = true
 						break
+					rescue Timeout::Error
+						retry
 					end
 
 					mutex.synchronize do
