@@ -46,7 +46,7 @@ describe SubList do
 	it 'saves' do
 		Restlet.should_receive(:execute!).
 			with({
-				:action => 'commit_sublist_changes',
+				:action => 'update_sublist',
 				:type_id => 'contact',
 				:parent_id => '42',
 				:sublist_id => 'sublist',

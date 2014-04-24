@@ -28,7 +28,7 @@ module NSConnector::SubList
 		end
 
 		NSConnector::Restlet.execute!(
-			:action => 'commit_sublist_changes',
+			:action => 'update_sublist',
 			:type_id => parent.type_id,
 			:parent_id => parent.id,
 			:fields => fields,

@@ -434,7 +434,7 @@ function get_sublist_changes(request)
 //  * downstream_index: The index of the sublist item in the changes that we
 //                      are pushing up. You'll only see this on add and update
 //  
-function commit_sublist_changes(request)
+function update_sublist(request)
 {
 	var changes = get_sublist_changes(request);
 
@@ -621,8 +621,7 @@ function main(request)
 		'search'        : search,
 		'update'        : update,
 		'fetch_sublist' : fetch_sublist,
-		'get_sublist_changes' : get_sublist_changes,
-		'commit_sublist_changes' : commit_sublist_changes,
+		'update_sublist' : update_sublist,
 		'invoice_pdf'   : invoice_pdf,
 		'attach'   	: attach,
 		'detach'   	: detach,
