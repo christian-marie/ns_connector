@@ -515,17 +515,16 @@ function update_sublist(request)
 
 		// 4. Save
 
+		// NetSuite explodes if we try to commit a sublist without altering it
+		// in any way, so we have to make sure that the data needs to be saved
+		// before actually trying to save it.
 		if (dirty) {
-			// NetSuite explodes if we try to commit a sublist without altering it
-			// in any way, so we have to keep this silly flag around.
-			// record.commitLineItem(request.sublist_id);
-
 			nlapiCommitLineItem(request.sublist_id);
 			nlapiSubmitRecord(record, true);
 		}
 	};
 
-	return(change_log);
+	return([]);
 }
 
 // Make sure we have the required arguments in our request object
