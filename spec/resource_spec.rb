@@ -84,7 +84,16 @@ describe PseudoResource do
 			}
 
 			@p.firstname = 'name'
-			@p.notes << @p.new_notes_item(:line => 'line1')
+
+			note_item1 = @p.new_notes_item(:line => 'line 1')
+			note_item2 = @p.new_notes_item(:line => 'line 2')
+
+			@p.notes << note_item1
+			@p.notes << note_item2
+
+			# Replace them, backways to test.
+			SubList.should_receive(:save!).
+				and_return([note_item2, note_item1])
 
 			Restlet.should_receive(:execute!).
 				with({
@@ -94,7 +103,8 @@ describe PseudoResource do
 					:data => {'firstname' => 'name'},
 					:sublists => { 
 						:notes => [
-							{'line' => 'line1'}
+							{'line' => 'line 1'},
+							{'line' => 'line 2'}
 						]
 					},
 				}).
@@ -106,6 +116,9 @@ describe PseudoResource do
 			expect(@p.firstname).to eql('Name')
 			expect(@p.lastname).to eql('nothing')
 			expect(@p.id).to eql('42')
+
+			# Backwards now
+			expect(@p.notes.first.line).to eql('line 2')
 		end
 
 		it 'has a pretty inspect' do
@@ -298,6 +311,16 @@ describe PseudoResource do
 		it 'is empty' do
 			p = PseudoResource.new
 			expect(p.notes).to be_empty
+		end
+
+		it 'can append a new list to blank object' do
+			p = PseudoResource.new
+			expect(p.new_notes_item).to be_a(NSConnector::SubListItem)
+			p.notes << p.new_notes_item(:line => 'line 1')
+			p.notes << p.new_notes_item(:line => 'line 2')
+
+			expect(p.notes.pop.line).to eql('line 2')
+			expect(p.notes.pop.line).to eql('line 1')
 		end
 	end
 

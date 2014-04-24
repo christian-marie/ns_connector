@@ -141,8 +141,20 @@ class NSConnector::Resource
 			:data => @store,
 			:sublists => sublists,
 		)
+
 		# If we got this far, we're probably in NetSuite
 		@in_netsuite = true
+
+		# Now we save our sublist(s)
+		@sublist_store.each do |sublist_id, sublist_items|
+			# Overwriting the current item
+			@sublist_store[sublist_id] = NSConnector::SubList.save!(
+				sublist_items, 
+				self,
+				sublist_id,
+				sublists[sublist_id]
+			)
+		end
 
 		return true
 	end
@@ -297,7 +309,12 @@ class NSConnector::Resource
 	private
 	# Given a sublist of {:addressbook => ['fields']} we want a method
 	# addressbook that looks up the sublist if we have an ID, otherwise
-	# returns an empty array.
+	# returns the empty array.
+	#
+	# And finally we need a method to create new sublist objects that is
+	# generic and not too crazy. So we have new_addressbook that returns a
+	# SubList object that can be stored and later turned into a hash to
+	# send to NetSuite.
 	def create_sublist_accessors!
 		sublists.each do |sublist_name, fields|
 			self.class.class_eval do
@@ -313,6 +330,10 @@ class NSConnector::Resource
 						) if in_netsuite?
 
 					@sublist_store[sublist_name] ||= []
+				end
+
+				define_method("#{sublist_name}=") do |value|
+					@sublist_store[sublist_name] = value
 				end
 
 				define_method(

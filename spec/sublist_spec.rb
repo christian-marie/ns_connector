@@ -42,4 +42,33 @@ describe SubList do
 		expect(sublist.first.field1).to eql('new')
 		expect(sublist.last.field2).to eql('new2')
 	end
+
+	it 'saves' do
+		Restlet.should_receive(:execute!).
+			with({
+				:action => 'commit_sublist_changes',
+				:type_id => 'contact',
+				:parent_id => '42',
+				:sublist_id => 'sublist',
+				:fields => ['field1', 'field2'],
+				:data => [
+					{'field1' => 'data'},
+					{'field2' => 'otherdata'}
+				]
+			}).and_return(
+				'true'
+			)
+
+		SubList.should_receive(:fetch).and_return('hai')
+		# Duplicates should be ignored, I figure? I'll be a little
+		# confused if duplicates ever appear in NetSuite
+		saved = SubList.save!(
+			[@item1, @item1, @item2],
+			@parent, 
+			'sublist',
+			['field1', 'field2']
+		)
+
+		expect(saved).to eql('hai')
+	end
 end
