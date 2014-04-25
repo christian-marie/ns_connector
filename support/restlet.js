@@ -14,10 +14,27 @@ function apply_constructor(klass, opts) {
 	return new applicator();
 }
 
+// Asserts that the current request object has a particular property.
+// If it doesn't, it raises a 400 error.
+function assert_property(request, property_name)
+{
+	if(!request.hasOwnProperty(property_name)) {
+		argument_error("Missing mandatory argument: " + property_name);
+	}
+}
+
 // Stops execution, sending a HTTP 400 response
 function argument_error(message)
 {
 	throw nlapiCreateError('400', message);
+}
+
+// Implements a simple non-prototyped indexOf for objects.
+function object_index_of(current_obj, value) {
+	for (var key in current_obj) {
+	    if (current_obj[key] == value) return key;
+	}
+	return null;
 }
 
 
@@ -319,6 +336,197 @@ function fetch_sublist(request)
 	return(get_sublist(record, request.sublist_id, request.fields));
 }
 
+// Before we can update sublists, we must determine first what operations
+// we are about to perform on it.
+//
+// Arguments::
+//   type_id: The type of the parent entity
+//   parent_id: The ID of the entity to get the sublist from
+//   sublist_id: The identifier for the current sublist
+//   data: The data which we are sending to update the sublist with
+//
+// Returns:: An object representing the changes that the current request is
+// about to perform on the sublist.  This object contains three keys:
+// add, update, and del (for delete). Each key points to an array of changes.
+//
+// Raises:: A 400 Missing mandatory argument exception if we missed a
+//          required argument.
+//
+// Each change item is an object that can contain the following keys:
+//  * downstream_index: The index of the sublist item in the changes that we
+//                      are pushing up. You'll only see this on add and update
+//                      operations.
+function get_sublist_changes(request)
+{
+	assert_property(request, 'parent_id');
+	assert_property(request, 'sublist_id');
+
+	var record = nlapiLoadRecord(request.type_id, request.parent_id);
+	var upstream_item_count = record.getLineItemCount(request.sublist_id);
+	var downstream_items = request.data;
+
+	// Start out by checking downstream data to see if we need to add new records.
+	var downstream_identifiers = {}, add_downstream = [];
+
+	for (var i = 0; i < downstream_items.length; i++) {
+		downstream_identifiers[i] = null;
+
+		if (downstream_items[i].hasOwnProperty('id')) {
+			downstream_identifiers[i] = downstream_items[i].id;
+		}
+		else {
+			add_downstream.push({
+				downstream_index: i
+			});
+		}
+	}
+
+	// Mark existing records that have been changed or deleted.
+
+	var update_upstream = [], delete_upstream = []; // Indices of upstream items to update & delete.
+
+	for (var i = 1; i <= upstream_item_count; i++) {
+		var upstream_id = record.getLineItemValue(
+			request.sublist_id, 'id', i
+		);
+
+		var corresponding_downstream = object_index_of(downstream_identifiers, upstream_id);
+
+		if (corresponding_downstream) {
+			// Mark for update.
+			update_upstream.push({
+				downstream_index: corresponding_downstream,
+				upstream_index: i,
+				id: upstream_id
+			});
+		}
+		else {
+			// Mark for deletion.
+			delete_upstream.push({
+				upstream_index: i,
+				id: upstream_id
+			});
+		}
+	}
+
+	return {
+		add: add_downstream,
+		update: update_upstream,
+		del: delete_upstream
+	}
+}
+
+// Commits changes to a given sublist.
+//
+// Arguments::
+//   type_id: The type of the parent entity
+//   parent_id: The ID of the entity to get the sublist from
+//   sublist_id: The identifier for the current sublist
+//   data: The data which we are sending to update the sublist with
+//
+// Returns:: An empty array. You'll need to re-fetch the sublist yourself
+//           later.
+//
+// Raises:: A 400 Missing mandatory argument exception if we missed a
+//          required argument.
+//
+// Each change item is an object that can contain the following keys:
+//  * downstream_index: The index of the sublist item in the changes that we
+//                      are pushing up. You'll only see this on add and update
+//  
+function update_sublist(request)
+{
+	var changes = get_sublist_changes(request);
+
+	var has_changes = (changes.add.length > 0 || changes.update.length > 0 || changes.del.length > 0);
+
+	var change_log = [];
+
+	if (has_changes) {
+
+		var record = nlapiLoadRecord(request.type_id, request.parent_id);
+		var upstream_item_count = record.getLineItemCount(request.sublist_id);
+		var dirty = false;
+
+		// 1. Update
+
+		for (var i = 0; i < changes.update.length; i++) {
+			var change = changes.update[i];
+			var downstream_item = request.data[change.downstream_index];
+
+			for (var field in downstream_item) {
+				var downstream_value = downstream_item[field];
+
+				var upstream_value = record.getLineItemValue(
+					request.sublist_id, field, change.upstream_index
+				);
+
+				if (upstream_value != downstream_value) {
+					dirty = true;
+
+					record.setLineItemValue(
+						request.sublist_id,
+						field,
+						change.upstream_index,
+						downstream_value
+					);
+				}
+			}
+		}
+
+		// 2. Delete
+
+		for (var i = 0; i < changes.del.length; i++) {
+			var change = changes.del[i];
+
+			dirty = true;
+
+			record.removeLineItem(
+				request.sublist_id,
+				change.upstream_index
+			);
+
+			--upstream_item_count;
+		}
+
+		// 3. Add
+
+		for (var i = 0; i < changes.add.length; i++) {
+			var change = changes.add[i];
+			var downstream_item = request.data[change.downstream_index];
+
+			dirty = true;
+
+			var new_upstream_index = ++upstream_item_count;
+
+			record.insertLineItem(request.sublist_id, new_upstream_index);
+
+			for (var field in downstream_item) {
+				var downstream_value = downstream_item[field];
+
+				record.setLineItemValue(
+					request.sublist_id,
+					field,
+					new_upstream_index,
+					downstream_value
+				);
+			}
+		}
+
+		// 4. Save
+
+		// NetSuite explodes if we try to commit a sublist without altering it
+		// in any way, so we have to make sure that the data needs to be saved
+		// before actually trying to save it.
+		if (dirty) {
+			nlapiCommitLineItem(request.sublist_id);
+			nlapiSubmitRecord(record, true);
+		}
+	};
+
+	return([]);
+}
+
 // Make sure we have the required arguments in our request object
 function pre_flight_check(request)
 {
@@ -412,6 +620,7 @@ function main(request)
 		'search'        : search,
 		'update'        : update,
 		'fetch_sublist' : fetch_sublist,
+		'update_sublist' : update_sublist,
 		'invoice_pdf'   : invoice_pdf,
 		'attach'   	: attach,
 		'detach'   	: detach,
