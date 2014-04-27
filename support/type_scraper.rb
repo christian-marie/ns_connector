@@ -9,6 +9,9 @@ require "open-uri"
 page = ARGV[0]
 class_name = ARGV[1]
 
+# NB: Index of types is at
+# https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2012_2/index.html
+
 url = "https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2012_2/Records/#{page}.html"
 bogus_ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.73.11 (KHTML, like Gecko) Version/6.1.1 Safari/537.73.11"
 
