@@ -1,0 +1,29 @@
+require 'ns_connector/resource'
+
+# == <%= resource_type %> resource
+# === Fields
+<% fields.each do |f| -%>
+# * <%= f.to_s %>
+<% end -%>
+# === Sublists
+<% sublists.each do |k, v| -%>
+# * <%= k.to_s %>
+<% end -%>
+
+class NSConnector::<%= resource_type %> < NSConnector::Resource
+	@type_id = '<%= resource_type_ident %>'
+	@fields = [
+<% fields.each do |f| -%>
+		:<%= f.to_s %>,
+<% end -%>
+	]
+	@sublists = {
+<% sublists.each do |k, v| -%>
+		:<%= k.to_s %> => [
+<% v.each do |_v| -%>
+			:<%= _v.to_s %>,
+<% end -%>
+		]<% if k == @sublists.keys.last %>,<% end %>
+<% end -%>
+	}
+end

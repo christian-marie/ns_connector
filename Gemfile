@@ -5,6 +5,7 @@ group :development do
 	gem 'webmock'
 	gem 'rake'
 	gem 'jeweler'
+	gem 'nokogiri'
 	gem 'bundler'
 	gem 'rdoc'
 	gem 'guard-rspec'

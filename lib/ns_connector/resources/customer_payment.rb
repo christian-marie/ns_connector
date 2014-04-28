@@ -2,6 +2,7 @@ require 'ns_connector/resource'
 
 # == CustomerPayment resource
 # === Fields
+# * id
 # * account
 # * allowemptycards
 # * applied
@@ -26,6 +27,7 @@ require 'ns_connector/resource'
 # * cczipcode
 # * chargeit
 # * checknum
+#   * class has been commented out
 # * consolidatebalance
 # * createddate
 # * creditcard
@@ -74,9 +76,8 @@ require 'ns_connector/resource'
 # * unapplied
 # * undepfunds
 # * validfrom
-#
-# === SubLists
-# * apply (invoices)
+# === Sublists
+# * apply
 # * credit
 # * deposit
 
@@ -108,6 +109,7 @@ class NSConnector::CustomerPayment < NSConnector::Resource
 		:cczipcode,
 		:chargeit,
 		:checknum,
+		# :class,
 		:consolidatebalance,
 		:createddate,
 		:creditcard,
