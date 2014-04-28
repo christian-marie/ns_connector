@@ -128,7 +128,7 @@ class NSConnector::Resource
 	# Returns:: true
 	def save!
 		# Convert all of our sublist objects to hashes
-		sublists = Hash[@sublist_store.map {|sublist_id, objects|
+		sublist_data = Hash[@sublist_store.map {|sublist_id, objects|
 			[sublist_id, objects.map {|object|
 				object.to_hash
 			}]
@@ -139,7 +139,7 @@ class NSConnector::Resource
 			:type_id => type_id,
 			:fields => fields,
 			:data => @store,
-			:sublists => sublists,
+			:sublists => sublist_data,
 		)
 
 		# If we got this far, we're probably in NetSuite
