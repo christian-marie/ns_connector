@@ -26,7 +26,7 @@ open(url, "User-Agent" => bogus_ua) {|f|
 html_doc = Nokogiri::HTML(raw.join("\n"))
 
 record_id = nil
-fields = []
+fields = [:id]
 sublists = {}
 
 record_ident = html_doc.css('.record_id').first.content.gsub('Internal ID: ', '')

@@ -2,6 +2,7 @@ require 'ns_connector/resource'
 
 # == DiscountItem resource
 # === Fields
+# * id
 # * account
 # * availabletopartners
 # * class
@@ -31,6 +32,7 @@ require 'ns_connector/resource'
 class NSConnector::DiscountItem < NSConnector::Resource
 	@type_id = 'discountitem'
 	@fields = [
+		:id,
 		:account,
 		:availabletopartners,
 		:class,

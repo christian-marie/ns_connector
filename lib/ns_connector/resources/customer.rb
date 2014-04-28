@@ -350,6 +350,6 @@ class NSConnector::Customer < NSConnector::Resource
 			:isprimary,
 			:issalesrep,
 			:salesrole,
-		],
+		]
 	}
 end

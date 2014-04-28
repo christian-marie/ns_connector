@@ -2,6 +2,7 @@ require 'ns_connector/resource'
 
 # == NonInventoryItem resource
 # === Fields
+# * id
 # * amortizationperiod
 # * amortizationtemplate
 # * auctionquantity
@@ -229,6 +230,7 @@ require 'ns_connector/resource'
 class NSConnector::NonInventoryItem < NSConnector::Resource
 	@type_id = 'noninventoryitem'
 	@fields = [
+		:id,
 		:amortizationperiod,
 		:amortizationtemplate,
 		:auctionquantity,
@@ -482,6 +484,6 @@ class NSConnector::NonInventoryItem < NSConnector::Resource
 			:categorydescription,
 			:isdefault,
 			:website,
-		],
+		]
 	}
 end

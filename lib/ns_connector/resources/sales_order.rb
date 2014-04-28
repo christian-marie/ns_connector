@@ -2,6 +2,7 @@ require 'ns_connector/resource'
 
 # == SalesOrder resource
 # === Fields
+# * id
 # * allowemptycards
 # * althandlingcost
 # * altsalestotal
@@ -169,6 +170,7 @@ require 'ns_connector/resource'
 class NSConnector::SalesOrder < NSConnector::Resource
 	@type_id = 'salesorder'
 	@fields = [
+		:id,
 		:allowemptycards,
 		:althandlingcost,
 		:altsalestotal,
@@ -423,6 +425,6 @@ class NSConnector::SalesOrder < NSConnector::Resource
 			:shippingrate,
 			:sourceaddress,
 			:weight,
-		],
+		]
 	}
 end

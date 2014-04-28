@@ -2,6 +2,7 @@ require 'ns_connector/resource'
 
 # == CustomerPayment resource
 # === Fields
+# * id
 # * account
 # * allowemptycards
 # * applied
@@ -83,6 +84,7 @@ require 'ns_connector/resource'
 class NSConnector::CustomerPayment < NSConnector::Resource
 	@type_id = 'customerpayment'
 	@fields = [
+		:id,
 		:account,
 		:allowemptycards,
 		:applied,
@@ -199,6 +201,6 @@ class NSConnector::CustomerPayment < NSConnector::Resource
 			:remaining,
 			:total,
 			:url,
-		],
+		]
 	}
 end

@@ -4,7 +4,6 @@ group :development do
 	gem 'rspec'
 	gem 'webmock'
 	gem 'rake'
-	gem 'faker'
 	gem 'jeweler'
 	gem 'nokogiri'
 	gem 'bundler'

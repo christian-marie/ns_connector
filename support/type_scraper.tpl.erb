@@ -23,7 +23,7 @@ class NSConnector::<%= resource_type %> < NSConnector::Resource
 <% v.each do |_v| -%>
 			:<%= _v.to_s %>,
 <% end -%>
-		],
+		]<% if k == @sublists.keys.last %>,<% end %>
 <% end -%>
 	}
 end
