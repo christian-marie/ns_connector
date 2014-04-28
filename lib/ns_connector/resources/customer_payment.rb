@@ -27,7 +27,7 @@ require 'ns_connector/resource'
 # * cczipcode
 # * chargeit
 # * checknum
-# * class
+#   * class has been commented out
 # * consolidatebalance
 # * createddate
 # * creditcard
@@ -109,7 +109,7 @@ class NSConnector::CustomerPayment < NSConnector::Resource
 		:cczipcode,
 		:chargeit,
 		:checknum,
-		:class,
+		# :class,
 		:consolidatebalance,
 		:createddate,
 		:creditcard,
