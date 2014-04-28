@@ -1,6 +1,5 @@
 language: ruby
 rvm:
-  - "1.9.2"
   - "1.9.3"
   - "2.0.0"
 #  - jruby-19mode TODO these are probably broken. Look over threading code.
