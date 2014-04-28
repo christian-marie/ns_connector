@@ -91,10 +91,6 @@ describe PseudoResource do
 			@p.notes << note_item1
 			@p.notes << note_item2
 
-			# Replace them, backways to test.
-			SubList.should_receive(:save!).
-				and_return([note_item2, note_item1])
-
 			Restlet.should_receive(:execute!).
 				with({
 					:action => 'create',
@@ -110,6 +106,11 @@ describe PseudoResource do
 				}).
 				once.
 				and_return(ns_reply)
+
+			# Replace them, backways to test.
+			SubList.should_receive(:save!).
+				with([note_item1, note_item2], @p, :notes, [:line]).
+				and_return([note_item2, note_item1])
 
 			expect(@p.save!).to eql(true)
 
