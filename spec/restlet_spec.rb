@@ -19,7 +19,8 @@ describe Restlet do
 				:body => expected_body,
 				:headers => {
 					'Authorization' => /^NLAuth/,
-					'Content-Type'=>'application/json'
+					'Content-Type'=>'application/json',
+					'User-Agent' => 'Restlet Test UA'
 				}
 			}
 
