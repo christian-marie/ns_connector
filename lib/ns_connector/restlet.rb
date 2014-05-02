@@ -44,6 +44,7 @@ module NSConnector::Restlet
 
 		request['Content-Type'] = 'application/json'
 		request['Authorization'] = NSConnector::Restlet.auth_header
+		request['User-Agent'] = NSConnector::Config[:user_agent] if NSConnector::Config[:user_agent]
 
 		begin
 			options[:code] = restlet_code

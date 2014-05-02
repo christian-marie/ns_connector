@@ -6,5 +6,6 @@ def valid_config
 		:password    => "pass\0word",
 		:role        => '123',
 		:restlet_url => 'https://netsuite:1234/restlet',
+		:user_agent  => 'Restlet Test UA'
 	}
 end
