@@ -60,7 +60,7 @@ An example config:
   })
 === Options
 ==== :account_id (mandatory)
-TODO: Document how to find an account ID.
+You can find your Account ID by visiting [Web Service Preferences](https://system.netsuite.com/app/webservices/setup.nl?whence=)
 
 ==== :email (mandatory)
 The email address you log into the NetSuite web site with that matches the
