@@ -6,6 +6,13 @@ require "erb"
 require "ostruct"
 require "open-uri"
 
+if ARGV.length < 2
+	puts "NetSuite type scraper"
+	puts "Turns NetSuite record documentation into ns_connector classes"
+	puts "Usage: type-scraper.rb (internal id) (final class name) > lib/ns_connector/resources/(ruby file name).rb"
+	exit 1
+end
+
 page = ARGV[0]
 class_name = ARGV[1]
 
