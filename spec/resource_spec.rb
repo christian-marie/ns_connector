@@ -180,7 +180,7 @@ describe PseudoResource do
 				['email', nil, 'isempty']
 			])
 			expect(result).to be_a(Array)
-			expect(result).to have(2).things
+			expect(result.size).to eq(2)
 
 			expect(result.first).to be_a(PseudoResource)
 			expect(result.first.firstname).to eql('unique')
@@ -304,7 +304,7 @@ describe PseudoResource do
 		end
 
 		it 'returns false trying to delete an object not in NS' do
-			expect(@p.delete!).to be_false
+			expect(@p.delete!).to be false
 		end
 	end
 

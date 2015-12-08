@@ -35,7 +35,7 @@ describe SubList do
 		)
 
 		expect(sublist).to be_a(Array)
-		expect(sublist).to have(2).things
+		expect(sublist.size).to eq(2)
 		sublist.each do |item|
 			expect(item).to be_a(SubListItem)
 		end

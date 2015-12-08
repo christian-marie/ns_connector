@@ -68,7 +68,7 @@ describe NSConnector::ChunkedSearching do
 
 		expect(ret).to be_a(Array)
 		# 5 iterations returning 3 each
-		expect(ret).to have(6 * 3).things
+		expect(ret.size).to eq(6 * 3)
 	end
 
 	it 'does a threaded search correctly' do
@@ -76,7 +76,7 @@ describe NSConnector::ChunkedSearching do
 
 		ret = MagicResource.threaded_search_by_chunks('filters')
 		expect(ret).to be_a(Array)
-		expect(ret).to have(6 * 3).things
+		expect(ret.size).to eq(6 * 3)
 	end
 
 end

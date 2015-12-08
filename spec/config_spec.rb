@@ -10,7 +10,7 @@ describe NSConnector::Config do
 
 	it 'sets a valid config' do
 		NSConnector::Config.set_config!(valid_config)
-		expect(NSConnector::Config.check_valid!).to be_true
+		expect(NSConnector::Config.check_valid!).to be true
 	end
 
 	it 'sets an invalid config' do
