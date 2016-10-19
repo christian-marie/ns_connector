@@ -9,3 +9,17 @@ def valid_config
 		:user_agent  => 'Restlet Test UA'
 	}
 end
+
+def valid_oauth_config
+  {
+    account_id: '654321',
+    role: '123',
+    restlet_url: 'https://netsuite.example.com/restlet',
+    oauth: {
+      token_id: 'the_token_id',
+      token_secret: 'the_token_secret',
+      client_id: 'the_client_id',
+      client_secret: 'the_client_secret',
+    },
+  }
+end

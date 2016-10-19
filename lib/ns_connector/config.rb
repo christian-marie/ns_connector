@@ -24,6 +24,10 @@ class NSConnector::Config
 			@@options[key.to_sym] = value
 		end
 
+    def key?(key)
+      @@options.key? key
+    end
+
 		# Overwrite the current 'global' config with +options+
 		def set_config! options
 			@@options = {}
@@ -44,19 +48,43 @@ class NSConnector::Config
 					'See: NSConnector::Config.set_config!'
 			end
 
+
+      # always required
 			required = [
-				:account_id, 
-				:email,
-				:password,
-				:role,
+				:account_id,
 				:restlet_url
 			]
 
 			missing_keys = (required - @@options.keys)
 			unless missing_keys.empty?
-				raise NSConnector::Config::ArgumentError, 
+				raise NSConnector::Config::ArgumentError,
 					'Missing configuration key(s): '\
 					"#{missing_keys.join(', ')}"
+			end
+
+      if @@options.key? :oauth
+        # just required if using oauth (nested under :oauth)
+        required = [
+          :token_id,
+          :token_secret,
+          :client_id,
+          :client_secret,
+        ]
+        missing_keys = (required - @@options[:oauth].keys)
+        unless missing_keys.empty?
+          raise NSConnector::Config::ArgumentError, "Missing OAuth keys: #{missing_keys.join(', ')}"
+        end
+      else
+        # just required if using regular nlauth
+        required = [
+          :email,
+          :password,
+          :role,
+        ]
+        missing_keys = (required - @@options.keys)
+        unless missing_keys.empty?
+          raise NSConnector::Config::ArgumentError, "Missing configuration key(s): #{missing_keys.join(', ')}"
+        end
 			end
 
 			# All good
