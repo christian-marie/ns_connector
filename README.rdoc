@@ -19,7 +19,7 @@ How is this different to the other netsuite connector gems out there?
 Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.12]
 
 == Features
-* No dependencies
+* No dependencies (unless you want to use oauth, then the +oauth+ gem is required)
 * Read write for supported types
 * Flexible searching
 * Multithreaded chunked searching for retrieving large datasets
@@ -53,26 +53,44 @@ The configuration is stored 'globally' via NSConnector::Config#set_config!
 An example config:
   NSConnector::Config.set_config!({
     :account_id  => '123',
+    :restlet_url => 'https://netsuite/restlet',
+    :role        => '456',
     :email       => 'email@site',
     :password    => "password",
-    :role        => '456',
-    :restlet_url => 'https://netsuite/restlet',
   })
-=== Options
-==== :account_id (mandatory)
-You can find your Account ID by visiting [Web Service Preferences](https://system.netsuite.com/app/webservices/setup.nl?whence=)
 
-==== :email (mandatory)
-The email address you log into the NetSuite web site with that matches the
-account_id.
 
-==== :password (mandatory)
-Hopefully a secret.
+=== NLAuth options
 
-==== :role (mandatory)
+==== :role
 Can be found in your cookie when logged in, or deep within the jungle of the
 user interface.
 TODO: Document the perilous journey through the jungle.
+
+==== :email
+The email address you log into the NetSuite web site with that matches the
+account_id.
+
+==== :password
+Hopefully a secret.
+
+=== OAuth options
+
+==== :client_id and :client_secret
+
+Credentials corresponding to the OAuth Application in Netsuite
+
+==== :token_id and :token_secret
+
+ID and secret for an "Access Token"
+
+=== Other Options
+
+==== :account_id (mandatory)
+You can find your Account ID by visiting {Web Service Preferences}[https://system.netsuite.com/app/webservices/setup.nl?whence=]
+
+==== :restlet_url (mandatory)
+The external URL of the restlet you created above
 
 ==== :use_threads (optional)
 A bool, set to false to turn off threading when retrieving large result sets.
