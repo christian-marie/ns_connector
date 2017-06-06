@@ -24,6 +24,9 @@ module NSConnector::Restlet
   def self.execute!(options)
     NSConnector::Config.check_valid!
 
+    # turn on netsuite-level debug from application
+    options[:restlet_debug] = NSConnector::Config[:restlet_debug]
+
     # Build our request up, a bit ugly
     uri = URI(NSConnector::Config[:restlet_url])
 

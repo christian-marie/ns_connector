@@ -632,5 +632,12 @@ function main(request)
 		argument_error("Unknown action: " + request.action);
 	}
 
-	return actions[request.action](request);
+  var restlet_response = actions[request.action](request)
+
+  if (request.restlet_debug) {
+    nlapiLogExecution('DEBUG', 'request', JSON.stringify(request));
+    nlapiLogExecution('DEBUG', 'response', JSON.stringify(restlet_response));
+  }
+
+	return restlet_response;
 }
