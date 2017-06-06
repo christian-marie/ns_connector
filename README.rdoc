@@ -101,6 +101,10 @@ retrieved at a time.
 ==== :no_threads (optional)
 An integer, the number of threads to use. By default, 4.
 
+==== :restlet_debug (optional)
+boolean, logs "request" and "response" at the RESTlet script level in Netsuite.
+!!! PLAIN TEXT !!! Do not leave on for cc transactions, etc. in production.
+
 == CRUD usage
 Every supported type supports full CRUD via the same standard interface
 Check the SuiteScript Records Browser [1] for avaliable fields.
