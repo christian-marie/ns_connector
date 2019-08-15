@@ -37,6 +37,7 @@ module NSConnector::Restlet
     end
 
     http = Net::HTTP.new(uri.host, uri.port)
+    http.read_timeout = NSConnector::Config[:read_timeout]
 
     if NSConnector::Config[:debug] then
       http.set_debug_output $stderr

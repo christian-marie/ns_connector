@@ -92,6 +92,9 @@ You can find your Account ID by visiting {Web Service Preferences}[https://syste
 ==== :restlet_url (mandatory)
 The external URL of the restlet you created above
 
+==== :restlet_url (optional)
+Set the desired read_timeout in seconds. Default is 60
+
 ==== :use_threads (optional)
 A bool, set to false to turn off threading when retrieving large result sets.
 By default we try to split these result sets up into manageable chunks. If you

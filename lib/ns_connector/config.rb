@@ -7,7 +7,8 @@ class NSConnector::Config
 	ArgumentError = Class.new(Exception)
 	DEFAULT = {
 		:use_threads => true,
-		:no_threads => 4
+		:no_threads => 4,
+		:read_timeout => 60
 	}
 
 	class << self
@@ -68,7 +69,7 @@ class NSConnector::Config
           :token_id,
           :token_secret,
           :client_id,
-          :client_secret,
+					:client_secret
         ]
         missing_keys = (required - @@options[:oauth].keys)
         unless missing_keys.empty?
