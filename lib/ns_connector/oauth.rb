@@ -24,6 +24,7 @@ module NSConnector
         token: token,
         request_uri: @request.uri,
         realm: @realm,
+        signature_method: 'HMAC-SHA256',
       )
     end
 
