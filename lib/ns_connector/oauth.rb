@@ -24,6 +24,7 @@ module NSConnector
         token: token,
         request_uri: @request.uri,
         realm: @realm,
+        signature_method: 'HMAC-SHA256',
       )
     end
 
@@ -36,7 +37,6 @@ module NSConnector
         consumer,
         oauth_token: @creds[:token_id],
         oauth_token_secret: @creds[:token_secret],
-        signature_method: 'HMAC-SHA256',
       )
     end
   end
