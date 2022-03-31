@@ -1,42 +1,24 @@
-{<img src="https://travis-ci.org/christian-marie/ns_connector.png?branch=master" alt="Build Status" />}[https://travis-ci.org/christian-marie/ns_connector]
-{<img src="https://coveralls.io/repos/christian-marie/ns_connector/badge.png?branch=master" alt="Coverage Status" />}[https://coveralls.io/r/christian-marie/ns_connector?branch=master] 
-= NSConnector intro 
+
+# NSConnector
+
 This library provides an interface to NetSuite via RESTlets, i.e. SuiteScript .
 This appears to be a quicker and more reliable way of interfacing with NetSuite
-records than the SOAP API. 
+records than the SOAP API.
 
-How is this different to the other netsuite connector gems out there?
+**References**
+  * {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]
+  * {Supported Transformation Types}                                                                          [https://system.netsuite.com/help/helpcenter/en_US/Output/Help/SuiteCloudCustomizationScriptingWebServices/SuiteScript/RecordAPIs.html#bridgehead_N3033016]
 
-* Basically, it uses a javascript RESTlet to communicate as opposed to the SOAP
-  API, so it's completely different and exposes a separate API.
-* It's not built around auto generated WSDL which can make it easier to design
-  a usable API.
-* It can be concurrent, so it at least has the potential to scale. You can only
-  make one request at a time per user using the SOAP API. 
-* It's quicker. Not sure why, but the SOAP API is horrendously slow sometimes,
-  RESTlets seem to be quicker, for now.
-== Documentation
-Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.12]
 
-== Features
-* No dependencies (unless you want to use oauth, then the +oauth+ gem is required)
-* Read write for supported types
-* Flexible searching
-* Multithreaded chunked searching for retrieving large datasets
-* Read only sublist support.
-* SubList item creation on creating new records only. (>= v0.0.7)
-* Attaching and detaching records 
-* Invoice PDF generation.
-* Record transformations.
+- [Getting Started](#getting-started)
+- [How it Works](#how-it-works)
+- [Developing](#developing)
+  - [Prerequisites](#prerequisites)
+  - [Testing](#testing)
+  - [Contributing](#contributing)
+- [Licensing](#licensing)
 
-== Supported NetSuite types
-It's pretty trivial to add a new one yourself. These have been tested to work:
-* Contact
-* Customer
-* CustomerPayment
-* Invoice
-
-== Installation
+# Getting Started
 Install the RESTlet:
   function post(request) {
     func = eval(request.code);
@@ -47,7 +29,41 @@ That's the whole RESTlet. Deploy it to NetSuite, ensuring that the POST
 function is set to 'post'. Note the 'External URL' when deploying it, that is
 what you will use in the configuration below.
 
-== Configuration
+
+
+# How it works
+How is this different to the other netsuite connector gems out there?
+
+* Basically, it uses a javascript RESTlet to communicate as opposed to the SOAP
+  API, so it's completely different and exposes a separate API.
+* It's not built around auto generated WSDL which can make it easier to design
+  a usable API.
+* It can be concurrent, so it at least has the potential to scale. You can only
+  make one request at a time per user using the SOAP API. 
+* It's quicker. Not sure why, but the SOAP API is horrendously slow sometimes,
+  RESTlets seem to be quicker, for now.
+
+**Features**
+
+* No dependencies (unless you want to use oauth, then the +oauth+ gem is required)
+* Read write for supported types
+* Flexible searching
+* Multithreaded chunked searching for retrieving large datasets
+* Read only sublist support.
+* SubList item creation on creating new records only. (>= v0.0.7)
+* Attaching and detaching records 
+* Invoice PDF generation.
+* Record transformations.
+
+**Supported NetSuite types**
+
+It's pretty trivial to add a new one yourself. These have been tested to work:
+* Contact
+* Customer
+* CustomerPayment
+* Invoice
+
+# Developing
 The configuration is stored 'globally' via NSConnector::Config#set_config!
 
 An example config:
@@ -58,68 +74,68 @@ An example config:
     :email       => 'email@site',
     :password    => "password",
   })
+  
+**NLAuth options**
 
+**:role**
 
-=== NLAuth options
-
-==== :role
 Can be found in your cookie when logged in, or deep within the jungle of the
 user interface.
 TODO: Document the perilous journey through the jungle.
 
-==== :email
+**:email**
 The email address you log into the NetSuite web site with that matches the
 account_id.
 
-==== :password
+**:password**
 Hopefully a secret.
 
-=== OAuth options
+**OAuth options**
 
-==== :client_id and :client_secret
+**:client_id and :client_secret**
 
 Credentials corresponding to the OAuth Application in Netsuite
 
-==== :token_id and :token_secret
+**:token_id and :token_secret**
 
 ID and secret for an "Access Token"
 
-=== Other Options
+**Other Options**
 
-==== :account_id (mandatory)
+**:account_id (mandatory)**
 You can find your Account ID by visiting {Web Service Preferences}[https://system.netsuite.com/app/webservices/setup.nl?whence=]
 
-==== :restlet_url (mandatory)
+**:restlet_url (mandatory)**
 The external URL of the restlet you created above
 
-==== :restlet_url (optional)
+**:restlet_url (optional)**
 Set the desired read_timeout in seconds. Default is 60
 
-==== :use_threads (optional)
+**:use_threads (optional)**
 A bool, set to false to turn off threading when retrieving large result sets.
 By default we try to split these result sets up into manageable chunks. If you
 turn this off, they will still be split up, but only one chunk will be
 retrieved at a time.
 
-==== :no_threads (optional)
+**:no_threads (optional)**
 An integer, the number of threads to use. By default, 4.
 
-==== :restlet_debug (optional)
+**:restlet_debug (optional)**
 boolean, logs "request" and "response" at the RESTlet script level in Netsuite.
 !!! PLAIN TEXT !!! Do not leave on for cc transactions, etc. in production.
 
-== CRUD usage
+**CRUD usage**
 Every supported type supports full CRUD via the same standard interface
 Check the SuiteScript Records Browser [1] for avaliable fields.
 
-=== Creating
+**Creating**
 To create a record, simply instantiate a new class of that kind and call
 .save!  on it.
 
 Calling .save! will re-load the saved Record from NetSuite with any other
 changes that NetSuite's internal logic may have made.
 
-Example:
+**Example:**
 
   include NSConnector
 
@@ -155,26 +171,27 @@ SubLists can be added to a record on creation. Here is how that works:
   c.save!
   => true
 
-=== Reading
+**Reading**
+
 You can find by any field or by internalId.
 Example:
 
   include NSConnector
 
-  # Search by any internal field ID, returns an array of Contacts
+  **Search by any internal field ID, returns an array of Contacts**
   Contact.search_by('entityId', 42)
   => [<#NSConnector::Contact:12>]
 
-  # Fetch one Contact by internalId
+  **Fetch one Contact by internalId**
   Contact.find(12)
   => <#NSConnector::Contact:12>
 
-  # Fetch one Customer by entityid
+  **Fetch one Customer by entityid**
   Customer.find_by('entityid', 1234)
   => <#NSConnector::Contact:12>
 
-  # Fetch all Contacts, this will take a while. (Request will be broken
-  # up into smaller ones and spread across multiple threads).
+  **Fetch all Contacts, this will take a while. (Request will be broken
+  up into smaller ones and spread across multiple threads).**
   Contact.all
   => [rather large array of NSConnector::Contact]
 
@@ -193,7 +210,7 @@ instances:
 You can also access the raw data store to more easily see what the object
 contains with:
   Contact.find(1234).store
-==== SubLists
+**SubLists**
 SubLists are exposed differently by the backend API, but that's pretty
 transparent to us, simply access them as a read only array:
   Contact.addressbook.first.city
@@ -202,7 +219,7 @@ accessor:
   Contact.sublists
   Customer.new.sublists
 
-=== Updating
+**Updating**
 Updating records is much like creating new ones. Simply:
 1. Grab the record (see Reading).
   c = Contact.find(12)
@@ -212,7 +229,7 @@ Updating records is much like creating new ones. Simply:
   c.save!
   => true
 
-=== Deleting
+**Deleting**
 Deletion can be done by ID or Record.
 Example:
 
@@ -223,7 +240,7 @@ Example:
   c = Contact.find(42)
   c.delete!
 
-== Record transformations
+**Record transformations**
 You can transform records into other records as per the supported transformation types in NetSuite [2]
 
 e.g.
@@ -235,16 +252,16 @@ e.g.
   "allowemptycards"=>nil,
   "applied"=>"99.99" ...
 
-== Attaching records
+**Attaching records**
 You can attach/detach records with #attach! and #detach!, it's pretty simple.
 
-  # Attach customer 123 to contacts 1, 2 and 3 with the role of 1
+  **Attach customer 123 to contacts 1, 2 and 3 with the role of 1**
   Customer.find(123).attach!(Contact, [1,2,3], :role => 1)
 
-  # Or anonymously like:
+  **Or anonymously like:**
   Customer.attach!(Contact, 123, [1,2,3], :role => 1)
   
-=== Troubleshooting note:
+**Troubleshooting note:**
 Should you run into an error something like:
 
 NSConnector::Restlet::RuntimeError: Failed to parse response from Restlet as
@@ -253,13 +270,16 @@ JSON (): A JSON text must at least contain two octets!
 It may just be that your user is being denied access, in which case netsuite
 seems to believes it is a good idea to simply send a blank response.
 
+## Prerequisites
 
-== Development notes
-See HACKING in the repo
+## Testing
 
-== License
-MIT
+## Contributing
 
-== References
-[1] {SuiteScript Records Browser}[https://system.netsuite.com/help/helpcenter/en_US/RecordsBrowser/2013_1/index.html]
-[2] {Supported Transformation Types}[https://system.netsuite.com/help/helpcenter/en_US/Output/Help/SuiteCloudCustomizationScriptingWebServices/SuiteScript/RecordAPIs.html#bridgehead_N3033016]
+## Documentation
+
+Avaliable at {rubydoc.info}[http://rubydoc.info/gems/ns_connector/0.0.12]
+
+## Licensing
+
+This project is private: [Brinks Legal Statement](./LICENSE).
