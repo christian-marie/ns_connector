@@ -1,0 +1,1 @@
+If you determine a vulnerability exists please report your observations to the InfoSecTeam InfoSecTeam@brinkshome.com distribution list. An example could be API keys or other secrets left in code after a scan should have detected the weakness.

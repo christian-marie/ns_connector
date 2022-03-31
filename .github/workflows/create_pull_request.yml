@@ -1,0 +1,63 @@
+#Whenever a push happens specifically to .github/settings.yml on branch dev, create pull request into main
+name: Create Pull Request For Updated Settings File
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - '.github/settings.yml'
+
+#Default GITHUB_TOKEN permissions.
+#Later in the job steps (Get Token) we are creating a custom short-live token that will inherit
+#permissions from the App we created. Therefore these permission are not needed and should be none. 
+#These permissions can be defined further in the job itself but at the most will only have the max permissions of the App.
+permissions:
+  actions: none
+  checks: none
+  contents: none
+  deployments: none
+  discussions: none
+  issues: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+  
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+    #Ensure SHA Pinned Actions
+    #Will loop through every step and ensure uses contains a valid SHA
+    - name: Ensure SHA Pinned Actions
+      uses: zgosalvez/github-actions-ensure-sha-pinned-actions@0b552a197e44b819629237e065d781f5ca691460
+    #Get Token
+    #Will create our short lived custom token that will inherit the max app settings
+    - name: Get Token
+      id: get_workflow_token
+      uses: peter-murray/workflow-application-token-action@d93504a6ff913242c1c512d97ad1f8b302000af5
+      with:
+        application_id: ${{ secrets.SETTINGS_DISTRIBUTOR_APP }}
+        application_private_key: ${{ secrets.SETTINGS_DISTRIBUTOR_APP_PRIVATE_KEY }}
+    #Checkout
+    #Checks-out your GITHUB_WORKSPACE so the workflow can utilize it
+    - name: Checkout
+      uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+      with: 
+        token: ${{ steps.get_workflow_token.outputs.token }}
+        
+    #Create Pull Request
+    #Opens a PR upon settings.yml being modified on the dev branch, utilizes the token from step 'Get Token'
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@dcd5fd746d53dd8de555c0f10bca6c35628be47a
+      with:
+        token: ${{ steps.get_workflow_token.outputs.token }}
+        commit-message: Updating
+        base: main
+        branch: ${{ github.ref }}
+        delete-branch: "false"
+        title: 'Updated settings.yml'
+        body:
+          Settings YML has been updated, please review and approve the changes.
