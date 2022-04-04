@@ -14,10 +14,10 @@ name: "CodeQL"
 on:
   push:
     # change this to the branch with your main line of development e.g. main 
-    branches: [ branch_here ]
+    branches: [ main, master ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ branch_here ]
+    branches: [ main ]
   schedule:
     - cron: '22 20 * * 3'
 
